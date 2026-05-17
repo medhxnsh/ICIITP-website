@@ -4,6 +4,8 @@ import { Link } from "@/i18n/navigation";
 import Image from "next/image";
 import { getPageSection } from "@/lib/cms/page-sections";
 import { getAllCmsPrograms } from "@/lib/cms/programs";
+import { getPublishedEvents } from "@/lib/cms/events";
+import { getPublishedNotifications } from "@/lib/cms/notifications";
 
 export const revalidate = 60; // ISR: re-fetch at most once per minute
 import { ParticleHero } from "@/components/particle-hero";
@@ -41,7 +43,56 @@ export default async function HomePage({ params }: HomePageProps) {
   const allNotifs = getAllNotifications(locale);
 
   const cms = await getPageSection("home").catch(() => null);
-  const cmsPrograms = await getAllCmsPrograms().catch(() => []);
+  const [cmsPrograms, cmsEventsRaw, cmsNotifsRaw] = await Promise.all([
+    getAllCmsPrograms().catch(() => []),
+    getPublishedEvents().catch(() => []),
+    getPublishedNotifications().catch(() => []),
+  ]);
+
+  // Utility: extract seconds from a Firestore Timestamp-like object without importing Timestamp
+  const toSecs = (ts: unknown): number => {
+    if (ts && typeof ts === "object") {
+      if ("seconds" in ts) return (ts as { seconds: number }).seconds;
+      if ("_seconds" in ts) return (ts as { _seconds: number })._seconds;
+    }
+    return 0;
+  };
+  const NEW_MS = 14 * 24 * 60 * 60 * 1000; // 14 days
+  const nowMs = Date.now();
+
+  // Merge CMS events (first) + static events (deduped), cap at 4 for the grid
+  const cmsEventSlugs = new Set(cmsEventsRaw.map((e) => e.slug));
+  const displayEvents = [
+    ...cmsEventsRaw.map((e) => ({
+      href: `/events/${e.slug}`,
+      category: e.category as string,
+      title: e.title,
+      tagline: e.tagline,
+      isNew: nowMs - toSecs(e.createdAt) * 1000 < NEW_MS,
+    })),
+    ...allEvents
+      .filter((e) => !cmsEventSlugs.has(e.slug))
+      .map((e) => ({ href: `/events/${e.slug}`, category: e.category, title: e.shortTitle, tagline: e.tagline, isNew: false })),
+  ].slice(0, 4);
+
+  // Merge CMS notifications (first) + static (deduped), cap at 5
+  const staticNotifSlugs = new Set(allNotifs.map((n) => n.slug));
+  const displayNotifs = [
+    ...cmsNotifsRaw.map((n) => ({
+      href: `/notifications/${n.id}`,
+      category: n.category,
+      title: n.title,
+      summary: n.body?.slice(0, 120) ?? "",
+      isNew: nowMs - toSecs(n.createdAt) * 1000 < NEW_MS,
+    })),
+    ...allNotifs.map((n) => ({
+      href: `/notifications/${n.slug}`,
+      category: n.category,
+      title: n.title,
+      summary: n.summary,
+      isNew: false,
+    })),
+  ].slice(0, 5);
   const cmsOnlySlugs = new Set(allPrograms.map((p) => p.slug));
   const cmsOnlyCount = cmsPrograms.filter((p) => p.published && !cmsOnlySlugs.has(p.slug)).length;
   const totalSchemes = allPrograms.length + cmsOnlyCount;
@@ -451,15 +502,21 @@ export default async function HomePage({ params }: HomePageProps) {
                 </Link>
               </div>
               <Stagger className="grid sm:grid-cols-2 gap-4">
-                {allEvents.map((e) => (
-                  <StaggerItem key={e.slug}>
+                {displayEvents.map((e) => (
+                  <StaggerItem key={e.href}>
                     <Link
-                      href={`/events/${e.slug}`}
-                      className="group flex flex-col rounded-xl border border-gray-200 bg-white p-5 hover:border-green-300 hover:shadow-md hover:-translate-y-0.5 transition-all duration-250 h-full"
+                      href={e.href}
+                      className="group flex flex-col rounded-xl border bg-white p-5 hover:border-green-300 hover:shadow-md hover:-translate-y-0.5 transition-all duration-250 h-full"
+                      style={{ borderColor: e.isNew ? "#7bbf3e" : "#e5e7eb" }}
                     >
-                      <span className="text-[10px] font-bold uppercase tracking-widest mb-2 block" style={{ color: "#5a7c20" }}>{e.category}</span>
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="text-[10px] font-bold uppercase tracking-widest" style={{ color: "#5a7c20" }}>{e.category}</span>
+                        {e.isNew && (
+                          <span className="text-[9px] font-bold uppercase tracking-wide px-1.5 py-0.5 rounded-full text-white" style={{ backgroundColor: "#f79420" }}>New</span>
+                        )}
+                      </div>
                       <h3 className="font-bold text-gray-900 leading-snug mb-2 group-hover:text-green-800 transition-colors line-clamp-2 flex-1 text-sm">
-                        {e.shortTitle}
+                        {e.title}
                       </h3>
                       <p className="text-xs text-gray-500 leading-relaxed line-clamp-2">{e.tagline}</p>
                       <span className="mt-3 inline-flex items-center gap-1 text-xs font-semibold opacity-0 group-hover:opacity-100 transition-opacity" style={{ color: "#3a5214" }}>
@@ -486,15 +543,20 @@ export default async function HomePage({ params }: HomePageProps) {
                 </Link>
               </div>
               <Stagger className="flex flex-col">
-                {allNotifs.map((n) => (
-                  <StaggerItem key={n.slug}>
+                {displayNotifs.map((n) => (
+                  <StaggerItem key={n.href}>
                     <Link
-                      href={`/notifications/${n.slug}`}
+                      href={n.href}
                       className="group flex items-start justify-between gap-4 py-4 transition-colors"
                       style={{ borderTop: "1px solid #3a521415" }}
                     >
                       <div className="min-w-0 flex-1">
-                        <span className="text-[10px] font-bold uppercase tracking-widest mb-1 block" style={{ color: "#5a7c20" }}>{n.category}</span>
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className="text-[10px] font-bold uppercase tracking-widest" style={{ color: "#5a7c20" }}>{n.category}</span>
+                          {n.isNew && (
+                            <span className="text-[9px] font-bold uppercase tracking-wide px-1.5 py-0.5 rounded-full text-white" style={{ backgroundColor: "#f79420" }}>New</span>
+                          )}
+                        </div>
                         <p className="text-sm font-semibold leading-snug text-gray-900 group-hover:text-green-800 transition-colors line-clamp-2">{n.title}</p>
                         <p className="text-xs text-gray-500 mt-1 leading-relaxed line-clamp-2">{n.summary}</p>
                       </div>

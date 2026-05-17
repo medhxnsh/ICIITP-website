@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { setRequestLocale } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { Breadcrumb } from "@/components/breadcrumb";
+import { getAllCmsPrograms } from "@/lib/cms/programs";
+import { STATIC_PROGRAM_SLUGS } from "@/lib/static-slugs";
 
 interface Props { params: Promise<{ locale: string }> }
 
@@ -10,7 +12,7 @@ export const metadata: Metadata = {
   description: "Complete sitemap of the Incubation Centre IIT Patna website.",
 };
 
-const SECTIONS = [
+const STATIC_SECTIONS = [
   {
     title: "About",
     links: [
@@ -102,6 +104,17 @@ const SECTIONS = [
 export default async function SitemapPage({ params }: Props) {
   const { locale } = await params;
   setRequestLocale(locale);
+
+  const cmsPrograms = await getAllCmsPrograms().catch(() => []);
+  const newPrograms = cmsPrograms
+    .filter((p) => p.published && !STATIC_PROGRAM_SLUGS.includes(p.slug as typeof STATIC_PROGRAM_SLUGS[number]))
+    .map((p) => ({ label: p.title ?? p.slug, href: `/programs/${p.slug}` as `/${string}` }));
+
+  const SECTIONS = STATIC_SECTIONS.map((s) =>
+    s.title === "Programs" && newPrograms.length > 0
+      ? { ...s, links: [...s.links, ...newPrograms] }
+      : s
+  );
 
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12">

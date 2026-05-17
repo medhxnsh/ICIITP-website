@@ -1,10 +1,12 @@
 import { requireAuth } from "@/lib/auth";
 import { SiteMapTree } from "@/components/admin/site-map-card";
 import { Map } from "lucide-react";
+import { getAllCmsPrograms } from "@/lib/cms/programs";
+import { STATIC_PROGRAM_SLUGS } from "@/lib/static-slugs";
 
 export const metadata = { title: "Site Map — IC IITP Admin" };
 
-const TREE = [
+const BASE_TREE = [
   {
     title: "Home",
     path: "/",
@@ -118,6 +120,23 @@ const TREE = [
 
 export default async function SiteMapPage() {
   await requireAuth();
+
+  const cmsPrograms = await getAllCmsPrograms().catch(() => []);
+  const newPrograms = cmsPrograms
+    .filter((p) => !STATIC_PROGRAM_SLUGS.includes(p.slug as typeof STATIC_PROGRAM_SLUGS[number]))
+    .map((p) => ({
+      title: p.title ?? p.slug,
+      path: `/programs/${p.slug}`,
+      editHref: `/admin/content/programs/${p.slug}`,
+      ...(p.published ? {} : { isStatic: false, isDraft: true }),
+    }));
+
+  const TREE = BASE_TREE.map((node) => {
+    if (node.title === "Programs" && newPrograms.length > 0) {
+      return { ...node, children: [...(node.children ?? []), ...newPrograms] };
+    }
+    return node;
+  });
 
   type Node = typeof TREE[number];
   const countPages = (nodes: Node[]): number =>
