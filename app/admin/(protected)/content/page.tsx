@@ -1,5 +1,4 @@
 import { requireAuth } from "@/lib/auth";
-import { Link } from "@/i18n/navigation";
 import { Bell, Calendar, BookOpen, Download } from "lucide-react";
 
 export const metadata = { title: "Content — IC IITP Admin" };
@@ -41,7 +40,7 @@ export default async function ContentIndexPage() {
       </p>
       <div className="grid sm:grid-cols-2 gap-4">
         {SECTIONS.map(({ href, icon: Icon, label, description }) => (
-          <Link
+          <a
             key={href}
             href={href}
             className="flex items-start gap-4 p-5 rounded-xl border transition-all hover:shadow-md"
@@ -54,7 +53,7 @@ export default async function ContentIndexPage() {
               <p className="font-semibold text-sm" style={{ color: "#1c2e06" }}>{label}</p>
               <p className="text-xs mt-0.5" style={{ color: "#7a8e6a" }}>{description}</p>
             </div>
-          </Link>
+          </a>
         ))}
       </div>
     </main>
