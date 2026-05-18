@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import { setRequestLocale } from "next-intl/server";
 import { Breadcrumb } from "@/components/breadcrumb";
-import { MapPin, Phone, Mail, Clock, MessageSquare } from "lucide-react";
-import { Link } from "@/i18n/navigation";
+import { MapPin, Phone, Mail, Clock } from "lucide-react";
 import { getPageSection } from "@/lib/cms/page-sections";
+import { ContactForm } from "@/components/forms/contact-form";
 
 export const revalidate = 60; // ISR: re-fetch at most once per minute
 
@@ -83,34 +83,11 @@ export default async function ContactPage({ params }: Props) {
             </div>
           </div>
 
-          {/* Quick links */}
+          {/* Contact form */}
           <div className="rounded-xl p-6 text-white" style={{ backgroundColor: "#3a5214" }}>
-            <h2 className="font-bold text-lg mb-4">Quick Actions</h2>
-            <div className="space-y-3">
-              <a
-                href="mailto:icitp@iitp.ac.in?subject=Incubation%20Inquiry"
-                className="flex items-center gap-2 text-sm bg-white/10 hover:bg-white/20 rounded-lg px-4 py-3 transition-colors"
-              >
-                <Mail className="w-4 h-4" aria-hidden="true" /> Email for Incubation Inquiry
-              </a>
-              <a
-                href="mailto:icitp@iitp.ac.in?subject=Lab%20Access%20Request"
-                className="flex items-center gap-2 text-sm bg-white/10 hover:bg-white/20 rounded-lg px-4 py-3 transition-colors"
-              >
-                <Mail className="w-4 h-4" aria-hidden="true" /> Request Lab Access
-              </a>
-              <a
-                href="mailto:icitp@iitp.ac.in?subject=Partnership%20Inquiry"
-                className="flex items-center gap-2 text-sm bg-white/10 hover:bg-white/20 rounded-lg px-4 py-3 transition-colors"
-              >
-                <Mail className="w-4 h-4" aria-hidden="true" /> Partnership / Collaboration
-              </a>
-              <Link
-                href="/feedback"
-                className="flex items-center gap-2 text-sm bg-white/10 hover:bg-white/20 rounded-lg px-4 py-3 transition-colors"
-              >
-                <MessageSquare className="w-4 h-4" aria-hidden="true" /> Share Feedback
-              </Link>
+            <h2 className="font-bold text-lg mb-4">Send us a message</h2>
+            <div style={{ color: "#1c2e06" }}>
+              <ContactForm locale={locale} />
             </div>
           </div>
         </div>

@@ -130,6 +130,30 @@ export async function submitInternship(
   }
 }
 
+export async function submitContact(
+  _prev: FormState,
+  formData: FormData
+): Promise<FormState> {
+  try {
+    const name = formData.get("name") as string;
+    const email = formData.get("email") as string;
+    const phone = formData.get("phone") as string;
+    const purpose = formData.get("purpose") as string;
+    const message = (formData.get("message") as string) || undefined;
+    const locale = (formData.get("locale") as string) || "en";
+
+    if (!name || !email || !phone || !purpose) {
+      return { success: false, error: "Please fill in all required fields." };
+    }
+
+    await createSubmission({ type: "contact", locale, name, email, phone, purpose, message });
+    return { success: true };
+  } catch (err) {
+    console.error("submitContact error", err);
+    return { success: false, error: "Something went wrong. Please try again or email icitp@iitp.ac.in." };
+  }
+}
+
 /**
  * Admin-only: update an application's status. Used via useFormState.
  * Requires an authenticated admin session.

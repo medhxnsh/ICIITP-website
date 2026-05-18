@@ -11,7 +11,8 @@ export type SubmissionType =
   | "lab-access"
   | "internship"
   | "careers"
-  | "feedback";
+  | "feedback"
+  | "contact";
 
 export type SubmissionStatus = "pending" | "reviewing" | "accepted" | "rejected";
 
@@ -83,12 +84,22 @@ export interface CareersSubmission extends BaseSubmission {
   message?: string;
 }
 
+export interface ContactSubmission extends BaseSubmission {
+  type: "contact";
+  name: string;
+  email: string;
+  phone: string;
+  purpose: string;
+  message?: string;
+}
+
 export type Submission =
   | IncubationSubmission
   | LabAccessSubmission
   | InternshipSubmission
   | FeedbackSubmission
-  | CareersSubmission;
+  | CareersSubmission
+  | ContactSubmission;
 
 // Each submission type lives in its own Firestore collection
 const COLLECTION_MAP: Record<SubmissionType, string> = {
@@ -97,6 +108,7 @@ const COLLECTION_MAP: Record<SubmissionType, string> = {
   "internship":   "internship-applications",
   "feedback":     "feedback",
   "careers":      "careers-applications",
+  "contact":      "contact-enquiries",
 };
 
 export function collectionFor(type: SubmissionType): string {
