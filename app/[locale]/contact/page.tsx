@@ -19,7 +19,7 @@ const D = {
   phone: "+91 611 523 3547",
   email: "icitp@iitp.ac.in",
   hours: "Monday – Friday: 9:00 AM – 5:30 PM IST",
-  maps_embed_url: "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3597.4!2d84.851!3d25.519!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2sIIT+Patna%2C+Bihta%2C+Bihar!5e0!3m2!1sen!2sin!4v1",
+  maps_embed_url: "https://maps.google.com/maps?q=IIT+Patna+Incubation+Centre+Bihta+Bihar&z=17&output=embed",
 };
 
 export default async function ContactPage({ params }: Props) {
