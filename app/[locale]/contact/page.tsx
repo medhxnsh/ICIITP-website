@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 import { setRequestLocale } from "next-intl/server";
 import { Breadcrumb } from "@/components/breadcrumb";
-import { MapPin, Phone, Mail, Clock } from "lucide-react";
+import { MapPin, Phone, Mail, Clock, MessageSquare } from "lucide-react";
 import { getPageSection } from "@/lib/cms/page-sections";
 import { ContactForm } from "@/components/forms/contact-form";
+import { FeedbackForm } from "@/components/forms/feedback-form";
 
 export const revalidate = 60; // ISR: re-fetch at most once per minute
 
@@ -130,6 +131,32 @@ export default async function ContactPage({ params }: Props) {
           />
         </div>
       </div>
+
+      {/* Feedback section */}
+      <section id="feedback" className="mt-12 pt-10 border-t" style={{ borderColor: "#e8f0e0" }}>
+        <div className="grid lg:grid-cols-2 gap-10 items-start">
+          <div>
+            <div className="flex items-center gap-3 mb-3">
+              <span className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ backgroundColor: "#f0f7e6" }}>
+                <MessageSquare className="w-4 h-4" style={{ color: "#3a5214" }} aria-hidden="true" />
+              </span>
+              <h2 className="text-2xl font-black" style={{ color: "#3a5214" }}>Share your feedback</h2>
+            </div>
+            <p className="text-base mb-5" style={{ color: "#5a6644" }}>
+              Suggestions, complaints, compliments — we want to hear from you.
+            </p>
+            <div className="rounded-xl p-4 flex gap-3" style={{ backgroundColor: "#f0f7e6", border: "1px solid #d4e6c4" }}>
+              <Clock className="w-4 h-4 mt-0.5 shrink-0" style={{ color: "#3a5214" }} aria-hidden="true" />
+              <p className="text-sm leading-relaxed" style={{ color: "#3a5214" }}>
+                We acknowledge every submission within <strong>3 working days</strong> and respond fully within <strong>15 working days</strong>.
+              </p>
+            </div>
+          </div>
+          <div className="rounded-xl border border-gray-200 bg-white p-6">
+            <FeedbackForm locale={locale} />
+          </div>
+        </div>
+      </section>
     </div>
   );
 }
