@@ -4,11 +4,82 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Plus, Trash2, Check, ChevronDown, ChevronUp } from "lucide-react";
 import type { Notification } from "@/lib/content";
-import type { StaticNotificationFormData, RecruitmentEntryInput, RecruitmentDocumentInput } from "./actions";
+import type { StaticNotificationFormData, RecruitmentEntryInput, RecruitmentDocumentInput, ProposalEntryInput } from "./actions";
 
 interface Props {
+  slug: string;
   notification: Notification;
   onSave: (data: StaticNotificationFormData) => Promise<{ success: boolean; error?: string }>;
+}
+
+const EMPTY_PROPOSAL: ProposalEntryInput = {
+  sn: 0,
+  title: "",
+  note: "",
+  moreDetailsUrl: "",
+  detailsUrl: "",
+  applicationFormUrl: "",
+};
+
+function ProposalRowEditor({
+  row,
+  index,
+  onChange,
+  onRemove,
+}: {
+  row: ProposalEntryInput;
+  index: number;
+  onChange: (updated: ProposalEntryInput) => void;
+  onRemove: () => void;
+}) {
+  const [open, setOpen] = useState(index === 0);
+  const inputCls = "w-full text-sm rounded-lg px-3 py-2 outline-none";
+  const inputStyle = { border: "1px solid #d4e6c4", color: "#1c2e06" };
+
+  return (
+    <div className="rounded-xl border overflow-hidden" style={{ borderColor: "#d4e6c4" }}>
+      <div
+        className="flex items-center gap-3 px-4 py-3 cursor-pointer select-none"
+        style={{ backgroundColor: "#f9fbf6" }}
+        onClick={() => setOpen((v) => !v)}
+      >
+        <span className="text-xs font-bold w-5 text-center" style={{ color: "#aab89e" }}>{index + 1}</span>
+        <span className="flex-1 text-sm font-semibold truncate" style={{ color: "#1c2e06" }}>
+          {row.title || <span style={{ color: "#aab89e" }}>Untitled proposal</span>}
+        </span>
+        <button type="button" onClick={(e) => { e.stopPropagation(); onRemove(); }} className="p-1 rounded hover:bg-red-50" style={{ color: "#b91c1c" }} title="Remove row">
+          <Trash2 className="w-3.5 h-3.5" />
+        </button>
+        {open ? <ChevronUp className="w-4 h-4" style={{ color: "#7a8e6a" }} /> : <ChevronDown className="w-4 h-4" style={{ color: "#7a8e6a" }} />}
+      </div>
+      {open && (
+        <div className="px-4 pb-4 pt-3 space-y-3 border-t" style={{ borderColor: "#e8f0e0" }}>
+          <div>
+            <label className="block text-xs font-semibold mb-1" style={{ color: "#5a6644" }}>Title</label>
+            <input value={row.title} onChange={(e) => onChange({ ...row, title: e.target.value })} placeholder="e.g. Call for applications for DST NIDHI PRAYAS…" className={inputCls} style={inputStyle} />
+          </div>
+          <div>
+            <label className="block text-xs font-semibold mb-1" style={{ color: "#5a6644" }}>Note <span className="font-normal" style={{ color: "#aab89e" }}>(optional small text under title)</span></label>
+            <input value={row.note} onChange={(e) => onChange({ ...row, note: e.target.value })} placeholder="e.g. *Use Firefox or Microsoft browser…" className={inputCls} style={inputStyle} />
+          </div>
+          <div className="grid sm:grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs font-semibold mb-1" style={{ color: "#5a6644" }}>Details PDF URL <span className="font-normal" style={{ color: "#b91c1c" }}>*required</span></label>
+              <input value={row.detailsUrl} onChange={(e) => onChange({ ...row, detailsUrl: e.target.value })} placeholder="https://iciitp.com/wp-content/uploads/…" className={inputCls} style={inputStyle} />
+            </div>
+            <div>
+              <label className="block text-xs font-semibold mb-1" style={{ color: "#5a6644" }}>More Details URL <span className="font-normal" style={{ color: "#aab89e" }}>(optional orange link)</span></label>
+              <input value={row.moreDetailsUrl} onChange={(e) => onChange({ ...row, moreDetailsUrl: e.target.value })} placeholder="https://…" className={inputCls} style={inputStyle} />
+            </div>
+          </div>
+          <div>
+            <label className="block text-xs font-semibold mb-1" style={{ color: "#5a6644" }}>Application Form URL <span className="font-normal" style={{ color: "#aab89e" }}>(optional — shown in 3rd column)</span></label>
+            <input value={row.applicationFormUrl} onChange={(e) => onChange({ ...row, applicationFormUrl: e.target.value })} placeholder="https://…" className={inputCls} style={inputStyle} />
+          </div>
+        </div>
+      )}
+    </div>
+  );
 }
 
 const EMPTY_DOC: RecruitmentDocumentInput = { label: "", url: "", type: "PDF" };
@@ -171,7 +242,7 @@ function RecruitmentRowEditor({
   );
 }
 
-export function StaticNotificationForm({ notification, onSave }: Props) {
+export function StaticNotificationForm({ slug, notification, onSave }: Props) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [saved, setSaved] = useState(false);
@@ -198,6 +269,16 @@ export function StaticNotificationForm({ notification, onSave }: Props) {
       documents: row.documents.map((d) => ({ label: d.label, url: d.url, type: d.type })),
     }))
   );
+  const [proposalsTable, setProposalsTable] = useState<ProposalEntryInput[]>(
+    () => (notification.proposalsTable ?? []).map((row) => ({
+      sn: row.sn,
+      title: row.title,
+      note: row.note ?? "",
+      moreDetailsUrl: row.moreDetailsUrl ?? "",
+      detailsUrl: row.detailsUrl,
+      applicationFormUrl: row.applicationFormUrl ?? "",
+    }))
+  );
 
   function addDownload() {
     setDownloads((prev) => [...prev, { title: "", path: "", format: "PDF" }]);
@@ -207,6 +288,16 @@ export function StaticNotificationForm({ notification, onSave }: Props) {
   }
   function updateDownload(i: number, field: "title" | "path" | "format", value: string) {
     setDownloads((prev) => prev.map((d, idx) => idx === i ? { ...d, [field]: value } : d));
+  }
+
+  function addProposalRow() {
+    setProposalsTable((prev) => [...prev, { ...EMPTY_PROPOSAL, sn: prev.length + 1 }]);
+  }
+  function updateProposalRow(i: number, updated: ProposalEntryInput) {
+    setProposalsTable((prev) => prev.map((r, idx) => idx === i ? updated : r));
+  }
+  function removeProposalRow(i: number) {
+    setProposalsTable((prev) => prev.filter((_, idx) => idx !== i));
   }
 
   function addRecruitmentRow() {
@@ -228,6 +319,7 @@ export function StaticNotificationForm({ notification, onSave }: Props) {
         contactEmail, externalUrl,
         downloads: downloads.filter((d) => d.title.trim() && d.path.trim()),
         recruitmentTable: recruitmentTable.filter((r) => r.position.trim()),
+        proposalsTable: proposalsTable.filter((r) => r.title.trim() && r.detailsUrl.trim()),
       });
       if (result.success) { setSaved(true); router.refresh(); }
       else setError(result.error ?? "Something went wrong.");
@@ -295,6 +387,43 @@ export function StaticNotificationForm({ notification, onSave }: Props) {
           </div>
         </div>
       </section>
+
+      {/* Proposals table — only for call-for-proposals */}
+      {slug === "call-for-proposals" && (
+        <section>
+          <div className="flex items-center justify-between mb-1">
+            <h2 className={sectionHead} style={{ color: "#3a5214", marginBottom: 0 }}>Proposals Table</h2>
+            <button
+              type="button"
+              onClick={addProposalRow}
+              className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg"
+              style={{ backgroundColor: "#f0f7e6", color: "#3a5214" }}
+            >
+              <Plus className="w-3.5 h-3.5" /> Add row
+            </button>
+          </div>
+          <p className="text-xs mb-4" style={{ color: "#7a8e6a" }}>
+            Each row is one call for proposals shown in the public table with a PDF details link and optional application form link.
+          </p>
+          {proposalsTable.length === 0 ? (
+            <div className="text-center py-8 rounded-xl text-sm" style={{ border: "1px dashed #d4e6c4", color: "#aab89e" }}>
+              No proposals yet — click &ldquo;Add row&rdquo;.
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {proposalsTable.map((row, i) => (
+                <ProposalRowEditor
+                  key={i}
+                  row={row}
+                  index={i}
+                  onChange={(updated) => updateProposalRow(i, updated)}
+                  onRemove={() => removeProposalRow(i)}
+                />
+              ))}
+            </div>
+          )}
+        </section>
+      )}
 
       {/* Recruitment table */}
       <section>

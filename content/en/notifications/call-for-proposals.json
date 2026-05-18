@@ -7,10 +7,58 @@
   "validTo": "2026-03-31",
   "category": "call-for-proposals",
   "summary": "Active calls for proposals: Nidhi Prayas 2025 (DST grant up to ₹10 lakh) and BioNEST Call-2 (BIRAC/DBT MedTech incubation).",
-  "body": "IC IITP currently has two active calls for proposals:\n\n**1. Nidhi Prayas 2025 (DST)**\nPrototype grant up to ₹10 lakh for innovators in Agriculture, Healthcare, Clean Tech, Energy, Water, IoT, and Industry 4.0. Duration 12–18 months. Download the application form and email to nidhiprayas.ic@iitp.ac.in.\n\n**2. BioNEST Call for Proposals – 2 (BIRAC/DBT)**\nBioTech and MedTech startups can apply for dedicated incubation space, lab access, and grant linkages in the BioNEST wing. Download the application form and submit to the BioNEST programme manager.",
+  "body": "Incubation Centre IIT Patna, on behalf of, IIT Patna Vishleshan I hub Foundation invites applications for support under NIDHI-EIR scheme of the NSTEDB, DST working in Cyber Physical System, especially on speech, video, and text analytics and related areas.",
+  "contactEmail": "iciitp@iitp.ac.in",
   "downloads": [
-    { "title": "Nidhi Prayas 2025 Application Form", "path": "/pdfs/Appliation-Form-Nidhi-Prayas-2025with_Annexure.pdf", "format": "PDF" },
-    { "title": "BioNEST Call-2 Application Form", "path": "/pdfs/BIRAC-BiONEST-2.pdf", "format": "PDF" }
+    { "title": "Nidhi Prayas 2025 Application Form", "path": "http://iciitp.com/wp-content/uploads/2025/09/Appliation-Form-Nidhi-Prayas-2025with_Annexure.pdf", "format": "PDF" },
+    { "title": "BioNEST Call-2 Application Form", "path": "http://iciitp.com/wp-content/uploads/2025/05/BIRAC-BiONEST-2.pdf", "format": "PDF" }
   ],
-  "contactEmail": "iciitp@iitp.ac.in"
+  "proposalsTable": [
+    {
+      "sn": 1,
+      "title": "Call for applications for DST NIDHI PRAYAS at Incubation Centre IIT Patna.",
+      "moreDetailsUrl": "http://iciitp.com/wp-content/uploads/2025/09/Appliation-Form-Nidhi-Prayas-2025with_Annexure.pdf",
+      "detailsUrl": "http://iciitp.com/wp-content/uploads/2025/09/Appliation-Form-Nidhi-Prayas-2025with_Annexure.pdf"
+    },
+    {
+      "sn": 2,
+      "title": "Call for proposal-2 for BioNEST at Incubation Centre IIT Patna.",
+      "moreDetailsUrl": "http://iciitp.com/wp-content/uploads/2025/05/BIRAC-BiONEST-2.pdf",
+      "detailsUrl": "http://iciitp.com/wp-content/uploads/2025/05/BIRAC-BiONEST-2.pdf"
+    },
+    {
+      "sn": 3,
+      "title": "Call for applications for DST NIDHI PRAYAS at Incubation Centre IIT Patna.",
+      "moreDetailsUrl": "http://iciitp.com/wp-content/uploads/2023/05/Appliation-Form-Nidhi-Prayas-ICIITP.pdf",
+      "detailsUrl": "http://iciitp.com/wp-content/uploads/2023/05/Appliation-Form-Nidhi-Prayas-ICIITP.pdf"
+    },
+    {
+      "sn": 4,
+      "title": "Call for applications for NIDHI-EIR at Incubation Centre IIT Patna.",
+      "moreDetailsUrl": "http://iciitp.com/wp-content/uploads/2023/07/ICIITP-Nidhi-EIR-Application1-1.pdf",
+      "detailsUrl": "http://iciitp.com/wp-content/uploads/2023/07/ICIITP-Nidhi-EIR-Application1-1.pdf"
+    },
+    {
+      "sn": 5,
+      "title": "Notice: Postponing the shortlisting of applications received for NIDHI EIR and NIDHI PRAYAS Scheme for TIH IIT Patna.",
+      "detailsUrl": "http://iciitp.com/wp-content/uploads/2023/03/letter_postpone_TIH.pdf"
+    },
+    {
+      "sn": 6,
+      "title": "Call for applications for NIDHI PRAYAS at TIH IIT Patna: Last date for Submission is 30th Jan. 2023.",
+      "note": "*Use Firefox or Microsoft browser for download the Application Form",
+      "detailsUrl": "http://iciitp.com/wp-content/uploads/2023/01/call-for-proposal_Nidhi-Prayas.pdf",
+      "applicationFormUrl": "http://iciitp.com/wp-content/uploads/2023/01/Nidhi-Prayas-AppliationForm-.docx"
+    },
+    {
+      "sn": 7,
+      "title": "Call for applications for NIDHI-EIR at TIH IIT Patna: Last date for Submission is 30th Jan. 2023.",
+      "detailsUrl": "http://iciitp.com/wp-content/uploads/2023/01/Nidhi-EIR-Application.pdf"
+    },
+    {
+      "sn": 8,
+      "title": "Call for proposal in the domain of Electronics System Design and Manufacturing (Deadline: 15th August 2022)",
+      "detailsUrl": "http://iciitp.com/wp-content/uploads/2023/05/ICIITP-Nidhi-EIR-Application.pdf"
+    }
+  ]
 }

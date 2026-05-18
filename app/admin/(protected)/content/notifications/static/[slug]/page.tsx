@@ -39,7 +39,7 @@ export default async function StaticNotificationEditPage({ params }: Props) {
         Edit this notification page&apos;s content. Changes are saved directly to the content file and go live immediately.
       </p>
 
-      <StaticNotificationForm notification={notification} onSave={save} />
+      <StaticNotificationForm slug={slug} notification={notification} onSave={save} />
     </main>
   );
 }

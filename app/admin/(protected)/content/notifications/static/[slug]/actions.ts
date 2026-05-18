@@ -22,6 +22,15 @@ export interface RecruitmentEntryInput {
   documents: RecruitmentDocumentInput[];
 }
 
+export interface ProposalEntryInput {
+  sn: number;
+  title: string;
+  note: string;
+  moreDetailsUrl: string;
+  detailsUrl: string;
+  applicationFormUrl: string;
+}
+
 export interface StaticNotificationFormData {
   title: string;
   summary: string;
@@ -33,6 +42,7 @@ export interface StaticNotificationFormData {
   externalUrl: string;
   downloads: Array<{ title: string; path: string; format: string }>;
   recruitmentTable?: RecruitmentEntryInput[];
+  proposalsTable?: ProposalEntryInput[];
 }
 
 export async function saveStaticNotificationAction(
@@ -74,6 +84,18 @@ export async function saveStaticNotificationAction(
       }));
     } else {
       delete updated.recruitmentTable;
+    }
+    if (data.proposalsTable && data.proposalsTable.length > 0) {
+      updated.proposalsTable = data.proposalsTable.map((row, i) => ({
+        sn: i + 1,
+        title: row.title.trim(),
+        ...(row.note.trim() ? { note: row.note.trim() } : {}),
+        ...(row.moreDetailsUrl.trim() ? { moreDetailsUrl: row.moreDetailsUrl.trim() } : {}),
+        detailsUrl: row.detailsUrl.trim(),
+        ...(row.applicationFormUrl.trim() ? { applicationFormUrl: row.applicationFormUrl.trim() } : {}),
+      }));
+    } else {
+      delete updated.proposalsTable;
     }
 
     // NOTE: writes back to the repo's content JSON. Works only on
