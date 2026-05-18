@@ -3,7 +3,6 @@ import { notFound } from "next/navigation";
 import { setRequestLocale } from "next-intl/server";
 import { getNotification, isNotificationActive } from "@/lib/content";
 import { getNotificationsByType } from "@/lib/cms/notifications";
-import { getDownloadsByPage } from "@/lib/cms/downloads";
 import { Breadcrumb } from "@/components/breadcrumb";
 import { ExternalLink } from "@/components/external-link";
 import { FileDown } from "lucide-react";
@@ -70,7 +69,6 @@ export default async function NotificationPage({ params }: Props) {
 
   let cmsItems: CmsNotificationDoc[] = [];
   try { cmsItems = await getNotificationsByType(CMS_TYPE); } catch {}
-  const cmsDocs = await getDownloadsByPage("notifications/call-for-proposals").catch(() => []);
 
   if (cmsItems.length > 0) {
     return (
@@ -147,35 +145,7 @@ export default async function NotificationPage({ params }: Props) {
         </section>
       )}
 
-      {n.downloads && n.downloads.length > 0 && (
-        <section className="mb-8"><h2 className="text-lg font-bold text-[var(--color-text)] mb-4">Downloads</h2>
-          <div className="space-y-3">{n.downloads.map(d => (
-            <a key={d.title} href={d.path} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 p-4 rounded-[var(--radius-lg)] border border-[var(--color-border)] hover:bg-[var(--color-brand-50)] hover:border-[var(--color-brand-300)] transition-all">
-              <FileDown className="w-5 h-5 text-[var(--color-brand-600)]" aria-hidden="true" />
-              <div><p className="font-medium text-sm text-[var(--color-text)]">{d.title}</p><p className="text-xs text-[var(--color-muted)]">{d.format}</p></div>
-            </a>))}</div>
-        </section>
-      )}
       {n.externalUrl && <section className="mb-8"><h2 className="text-lg font-bold text-[var(--color-text)] mb-3">External Portal</h2><ExternalLink href={n.externalUrl} className="inline-flex items-center gap-2 px-4 py-2 rounded-md text-white text-sm font-semibold hover:opacity-90" style={{ backgroundColor: "#3a5214" }}>Visit Portal</ExternalLink></section>}
-      {cmsDocs.length > 0 && (
-        <section className="mb-8">
-          <h2 className="text-lg font-bold text-[var(--color-text)] mb-4">Forms &amp; Documents</h2>
-          <div className="space-y-2">
-            {cmsDocs.map((doc) => (
-              <a key={doc.id} href={doc.fileUrl} target="_blank" rel="noopener noreferrer"
-                className="flex items-center gap-3 p-4 rounded-xl border hover:shadow-sm transition-shadow"
-                style={{ borderColor: "#e8f0e0", backgroundColor: "white" }}>
-                <FileDown className="w-5 h-5 shrink-0" style={{ color: "#3a5214" }} aria-hidden="true" />
-                <div className="flex-1 min-w-0">
-                  <p className="font-medium text-sm" style={{ color: "#1c2e06" }}>{doc.title}</p>
-                  {doc.purpose && <p className="text-xs mt-0.5" style={{ color: "#7a8e6a" }}>{doc.purpose}</p>}
-                </div>
-                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full shrink-0" style={{ backgroundColor: "#f0f7e6", color: "#3a5214" }}>{doc.fileType}</span>
-              </a>
-            ))}
-          </div>
-        </section>
-      )}
       {n.contactEmail && <p className="text-sm text-[var(--color-text-subtle)]">Contact: <a href={`mailto:${n.contactEmail}`} className="text-[var(--color-primary)] hover:underline">{n.contactEmail}</a></p>}
     </div>
   );

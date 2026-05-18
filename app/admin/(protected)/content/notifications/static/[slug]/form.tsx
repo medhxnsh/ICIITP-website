@@ -461,8 +461,8 @@ export function StaticNotificationForm({ slug, notification, onSave }: Props) {
         )}
       </section>
 
-      {/* Legacy downloads */}
-      <section>
+      {/* Legacy downloads — hidden for call-for-proposals (PDFs are per-row in the table above) */}
+      {slug !== "call-for-proposals" && <section>
         <div className="flex items-center justify-between mb-3">
           <h2 className={sectionHead} style={{ color: "#3a5214", marginBottom: 0 }}>
             Additional Downloads <span className="text-xs font-normal normal-case" style={{ color: "#aab89e" }}>(optional — separate from the table above)</span>
@@ -499,7 +499,7 @@ export function StaticNotificationForm({ slug, notification, onSave }: Props) {
             ))}
           </div>
         )}
-      </section>
+      </section>}
 
       <div className="flex items-center gap-3 pt-2">
         <button
