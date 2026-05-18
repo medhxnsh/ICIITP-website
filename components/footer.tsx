@@ -10,11 +10,11 @@ export function Footer() {
 
   return (
     <footer className="text-white no-print" style={{ backgroundColor: "#2a3a0d" }} role="contentinfo">
-      {/* Main footer — 3-column layout */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 grid grid-cols-1 lg:grid-cols-3 gap-10">
+      {/* Main footer — 4-column layout */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10">
 
         {/* Column 1: Brand */}
-        <div>
+        <div className="sm:col-span-2 lg:col-span-1">
           <div className="flex items-center gap-3 mb-4">
             <div
               className="rounded-full shrink-0 p-0.5"
@@ -50,54 +50,54 @@ export function Footer() {
           </p>
         </div>
 
-        {/* Column 2: Quick Links + Policies side by side */}
-        <div className="grid grid-cols-2 gap-8">
-          <div>
-            <h3 className="text-sm font-semibold text-white/90 uppercase tracking-wider mb-4">
-              {t("links")}
-            </h3>
-            <ul className="space-y-2 text-sm text-white/70">
-              {[
-                ["/", tn("home")],
-                ["/about", tn("about")],
-                ["/programs", tn("programs")],
-                ["/portfolio", tn("portfolio")],
-                ["/facilities", tn("facilities")],
-                ["/events", tn("events")],
-                ["/notifications", tn("notifications")],
-                ["/contact", tn("contact")],
-              ].map(([href, label]) => (
-                <li key={href}>
-                  <Link href={href} className="hover:text-white transition-colors">{label}</Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-          <div>
-            <h3 className="text-sm font-semibold text-white/90 uppercase tracking-wider mb-4">
-              {t("policies")}
-            </h3>
-            <ul className="space-y-2 text-sm text-white/70">
-              {[
-                ["/policies/privacy", tp("privacy")],
-                ["/policies/terms", tp("terms")],
-                ["/policies/copyright", tp("copyright")],
-                ["/policies/hyperlinking", tp("hyperlinking")],
-                ["/policies/security", tp("security")],
-                ["/policies/accessibility", tp("accessibility")],
-                ["/sitemap", tp("sitemap")],
-                ["/help", tn("help")],
-                ["/downloads", tn("downloads")],
-              ].map(([href, label]) => (
-                <li key={href}>
-                  <Link href={href} className="hover:text-white transition-colors">{label}</Link>
-                </li>
-              ))}
-            </ul>
-          </div>
+        {/* Column 2: Quick Links */}
+        <div>
+          <h3 className="text-sm font-semibold text-white/90 uppercase tracking-wider mb-4">
+            {t("links")}
+          </h3>
+          <ul className="space-y-2 text-sm text-white/70">
+            {[
+              ["/", tn("home")],
+              ["/about", tn("about")],
+              ["/programs", tn("programs")],
+              ["/portfolio", tn("portfolio")],
+              ["/facilities", tn("facilities")],
+              ["/events", tn("events")],
+              ["/notifications", tn("notifications")],
+              ["/contact", tn("contact")],
+            ].map(([href, label]) => (
+              <li key={href}>
+                <Link href={href} className="hover:text-white transition-colors">{label}</Link>
+              </li>
+            ))}
+          </ul>
         </div>
 
-        {/* Column 3: Follow Us + Contact */}
+        {/* Column 3: Policies */}
+        <div>
+          <h3 className="text-sm font-semibold text-white/90 uppercase tracking-wider mb-4">
+            {t("policies")}
+          </h3>
+          <ul className="space-y-2 text-sm text-white/70">
+            {[
+              ["/policies/privacy", tp("privacy")],
+              ["/policies/terms", tp("terms")],
+              ["/policies/copyright", tp("copyright")],
+              ["/policies/hyperlinking", tp("hyperlinking")],
+              ["/policies/security", tp("security")],
+              ["/policies/accessibility", tp("accessibility")],
+              ["/sitemap", tp("sitemap")],
+              ["/help", tn("help")],
+              ["/downloads", tn("downloads")],
+            ].map(([href, label]) => (
+              <li key={href}>
+                <Link href={href} className="hover:text-white transition-colors">{label}</Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        {/* Column 4: Follow Us + Contact */}
         <div>
           <h3 className="text-sm font-semibold text-white/90 uppercase tracking-wider mb-4">
             {t("social")}
