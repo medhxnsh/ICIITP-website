@@ -49,38 +49,63 @@ export default async function ContactPage({ params }: Props) {
       <div className="grid lg:grid-cols-2 gap-10">
         {/* Contact details */}
         <div className="space-y-6">
-          <div className="rounded-xl border border-gray-200 bg-white p-6 space-y-5">
+          <div className="rounded-xl p-6 space-y-6 text-white" style={{ backgroundColor: "#3a5214" }}>
+
+            {/* Address */}
             <div className="flex gap-4">
-              <MapPin className="w-5 h-5 mt-0.5 shrink-0" style={{ color: "#3a5214" }} aria-hidden="true" />
+              <MapPin className="w-5 h-5 mt-0.5 shrink-0" style={{ color: "#f79420" }} aria-hidden="true" />
               <div>
-                <p className="font-semibold text-gray-900 mb-0.5">Address</p>
-                <p className="text-sm text-gray-600 leading-relaxed whitespace-pre-line">{address}</p>
+                <p className="font-bold mb-1" style={{ color: "#f79420" }}>Address</p>
+                <p className="text-sm leading-relaxed text-white/90">
+                  Incubation Centre, IIT Patna,<br />
+                  Amhara Road, Bihta, Patna,<br />
+                  Bihar – 801103
+                </p>
               </div>
             </div>
 
+            <div className="border-t border-white/10" />
+
+            {/* Phone contacts */}
             <div className="flex gap-4">
-              <Phone className="w-5 h-5 mt-0.5 shrink-0" style={{ color: "#3a5214" }} aria-hidden="true" />
-              <div>
-                <p className="font-semibold text-gray-900 mb-0.5">Phone</p>
-                <a href={`tel:${phone.replace(/\s/g, "")}`} className="text-sm text-gray-600 hover:underline">{phone}</a>
+              <Phone className="w-5 h-5 mt-0.5 shrink-0" style={{ color: "#f79420" }} aria-hidden="true" />
+              <div className="space-y-3">
+                <div>
+                  <p className="font-bold mb-1" style={{ color: "#f79420" }}>General Enquiries</p>
+                  <p className="text-sm text-white/70 mb-0.5">Mr. Pradhan</p>
+                  <a href="tel:06115233547" className="text-sm text-white hover:text-white/80 transition-colors">06115233547</a>
+                </div>
+                <div>
+                  <p className="font-bold mb-1" style={{ color: "#f79420" }}>For Getting Incubated</p>
+                  <p className="text-sm text-white/70 mb-0.5">Mrs. Deepti Anand</p>
+                  <a href="tel:+919608938788" className="text-sm text-white hover:text-white/80 transition-colors">+91 9608938788</a>
+                </div>
               </div>
             </div>
 
+            <div className="border-t border-white/10" />
+
+            {/* Email */}
             <div className="flex gap-4">
-              <Mail className="w-5 h-5 mt-0.5 shrink-0" style={{ color: "#3a5214" }} aria-hidden="true" />
+              <Mail className="w-5 h-5 mt-0.5 shrink-0" style={{ color: "#f79420" }} aria-hidden="true" />
               <div>
-                <p className="font-semibold text-gray-900 mb-0.5">Email</p>
-                <a href={`mailto:${email}`} className="text-sm hover:underline" style={{ color: "#3a5214" }}>{email}</a>
+                <p className="font-bold mb-1" style={{ color: "#f79420" }}>Write to us</p>
+                <a href="mailto:iciitp@iitp.ac.in" className="text-sm text-white hover:text-white/80 transition-colors">iciitp@iitp.ac.in</a>
+                <p className="text-xs text-white/60 mt-1">We will get back to you.</p>
               </div>
             </div>
 
+            <div className="border-t border-white/10" />
+
+            {/* Office hours */}
             <div className="flex gap-4">
-              <Clock className="w-5 h-5 mt-0.5 shrink-0" style={{ color: "#3a5214" }} aria-hidden="true" />
+              <Clock className="w-5 h-5 mt-0.5 shrink-0" style={{ color: "#f79420" }} aria-hidden="true" />
               <div>
-                <p className="font-semibold text-gray-900 mb-0.5">Office Hours</p>
-                <p className="text-sm text-gray-600">{hours}</p>
+                <p className="font-bold mb-1" style={{ color: "#f79420" }}>Office Hours</p>
+                <p className="text-sm text-white/90">{hours}</p>
               </div>
             </div>
+
           </div>
 
           {/* Contact form */}
