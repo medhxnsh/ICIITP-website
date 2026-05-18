@@ -63,8 +63,8 @@ export function LabAccessForm({ locale = "en", defaultLab }: Props) {
       </Field>
 
       <Field>
-        <Label htmlFor="preferredDates">Preferred dates (optional)</Label>
-        <Input id="preferredDates" type="text" placeholder="e.g. 1–5 July 2025, or 'flexible'" />
+        <Label htmlFor="preferredDates" required>Preferred dates</Label>
+        <Input id="preferredDates" type="text" required placeholder="e.g. 1–5 July 2025, or 'flexible'" />
       </Field>
 
       <SubmitButton label="Request access" pending={pending} />

@@ -61,10 +61,10 @@ export async function submitLabAccess(
     const lab = formData.get("lab") as string;
     const purpose = formData.get("purpose") as string;
     const phone = (formData.get("phone") as string) || undefined;
-    const preferredDates = (formData.get("preferredDates") as string) || undefined;
+    const preferredDates = formData.get("preferredDates") as string;
     const locale = (formData.get("locale") as string) || "en";
 
-    if (!name || !email || !affiliation || !lab || !purpose) {
+    if (!name || !email || !affiliation || !lab || !purpose || !preferredDates) {
       return { success: false, error: "Please fill in all required fields." };
     }
 

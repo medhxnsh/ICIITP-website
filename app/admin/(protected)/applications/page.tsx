@@ -27,7 +27,7 @@ const STATUS_STYLES: Record<string, { bg: string; text: string }> = {
 function summary(sub: Record<string, unknown>): string {
   const t = sub.type as string;
   if (t === "incubation") return `${sub.startupName ?? ""} · ${sub.scheme ?? ""} · ${sub.stage ?? ""}`;
-  if (t === "lab-access") return `${sub.affiliation ?? ""} → ${sub.lab ?? ""}`;
+  if (t === "lab-access") return `${sub.affiliation ?? ""} → ${sub.lab ?? ""}${sub.preferredDates ? ` · ${sub.preferredDates}` : ""}`;
   if (t === "internship") return `${sub.college ?? ""} · ${sub.area ?? ""} · ${sub.duration ?? ""}`;
   if (t === "feedback") return (sub.message as string)?.slice(0, 80) ?? "";
   return "";
