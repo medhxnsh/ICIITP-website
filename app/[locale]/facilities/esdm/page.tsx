@@ -53,10 +53,14 @@ export default async function LabPage({ params }: Props) {
         </h2>
         <p className="text-sm text-[var(--color-text-subtle)]">
           Incubatees at IC IITP have priority access to all laboratory facilities. External
-          researchers and companies may request access by contacting the lab manager.
+          researchers and companies may request lab access through our online form.
         </p>
-        <a href="mailto:iciitp@iitp.ac.in" className="inline-block mt-3 text-sm font-semibold text-[var(--color-primary)] hover:underline">
-          iciitp@iitp.ac.in
+        <a
+          href="/apply?form=lab-access"
+          className="inline-block mt-4 text-sm font-semibold px-5 py-2 rounded-lg text-white"
+          style={{ backgroundColor: "#3a5214" }}
+        >
+          Request lab access →
         </a>
       </section>
     </div>
