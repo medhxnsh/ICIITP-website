@@ -21,6 +21,7 @@ export interface NotificationFormData {
   attachmentUrl: string;
   attachments: Array<{ title: string; url: string; type: string }>;
   coverImageUrl: string;
+  customBadge?: string;
   published: boolean;
 }
 

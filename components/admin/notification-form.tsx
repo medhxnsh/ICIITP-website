@@ -61,6 +61,7 @@ export function NotificationForm({ notification, onSave }: Props) {
   const [contactEmail, setContactEmail] = useState(notification?.contactEmail ?? "");
   const [externalUrl, setExternalUrl] = useState(notification?.externalUrl ?? "");
   const [coverImageUrl, setCoverImageUrl] = useState(notification?.coverImageUrl ?? "");
+  const [customBadge, setCustomBadge] = useState(notification?.customBadge ?? "");
   const [published, setPublished] = useState(notification?.published ?? false);
 
   // Merge legacy single attachmentUrl into attachments array
@@ -124,6 +125,7 @@ export function NotificationForm({ notification, onSave }: Props) {
       attachmentUrl: attachments[0]?.url ?? "",
       attachments: attachments.filter((a) => a.url.trim()),
       coverImageUrl: coverImageUrl.trim(),
+      customBadge: customBadge.trim() || undefined,
       published,
     };
     startTransition(async () => {
@@ -218,6 +220,18 @@ export function NotificationForm({ notification, onSave }: Props) {
             <label className={labelCls} style={labelStyle}>External portal URL</label>
             <input type="url" value={externalUrl} onChange={(e) => setExternalUrl(e.target.value)}
               placeholder="https://..." className={inputCls} style={inputStyle} />
+          </div>
+          <div className="sm:col-span-2">
+            <label className={labelCls} style={labelStyle}>
+              Custom badge <span className="font-normal" style={{ color: "#aab89e" }}>(e.g. "Shortlisted Published", "Interview Scheduled" — shown alongside auto date badge)</span>
+            </label>
+            <input
+              value={customBadge}
+              onChange={(e) => setCustomBadge(e.target.value)}
+              placeholder="Leave blank to rely on dates only"
+              className={inputCls}
+              style={inputStyle}
+            />
           </div>
         </div>
       </section>

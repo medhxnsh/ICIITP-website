@@ -7,6 +7,7 @@ import { ProgramCard } from "@/components/program-card";
 import { Breadcrumb } from "@/components/breadcrumb";
 import { Link } from "@/i18n/navigation";
 import { ArrowRight } from "lucide-react";
+import { autoDateBadge, programStatusBadge, badgeStyle } from "@/lib/badge-utils";
 
 interface Props { params: Promise<{ locale: string }> }
 
@@ -70,11 +71,29 @@ export default async function ProgramsPage({ params }: Props) {
               {prog.tagline && (
                 <p className="text-sm text-[--color-text-subtle] mb-3 line-clamp-2">{prog.tagline}</p>
               )}
-              {prog.status && (
-                <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${
-                  prog.status === "Open" ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-600"
-                }`}>{prog.status}</span>
-              )}
+              <div className="flex flex-wrap gap-1.5 mt-2">
+                {prog.status && (() => {
+                  const b = programStatusBadge(prog.status);
+                  return (
+                    <span className="text-xs font-medium px-2 py-0.5 rounded-full" style={badgeStyle(b.variant)}>
+                      {b.label}
+                    </span>
+                  );
+                })()}
+                {(() => {
+                  const b = autoDateBadge({ deadline: prog.applicationDeadline, labelClosed: "Applications Closed" });
+                  return b ? (
+                    <span className="text-xs font-medium px-2 py-0.5 rounded-full" style={badgeStyle(b.variant)}>
+                      {b.label}
+                    </span>
+                  ) : null;
+                })()}
+                {prog.customBadge && (
+                  <span className="text-xs font-medium px-2 py-0.5 rounded-full" style={badgeStyle("orange")}>
+                    {prog.customBadge}
+                  </span>
+                )}
+              </div>
             </div>
             <div className="px-6 pb-5">
               <Link

@@ -7,13 +7,331 @@
   "validTo": "2026-01-18",
   "category": "careers",
   "summary": "IC IITP invites applications for various administrative and technical positions. Deadline: 18 January 2026.",
-  "body": "The Incubation Centre, IIT Patna (IC IITP) invites applications from eligible candidates for various positions. The roles span administration, technical operations, incubation management, and programme coordination. Interested candidates should download the application form and submit it via email to iciitp@iitp.ac.in before the deadline.\n\nFor details on roles, qualifications, and remuneration, please refer to the official notification linked below or contact the office directly.",
+  "body": "With the support of State Govt. of Bihar this IC will be a joint effort with MeitY Government of India. The State govt. will provide matching funds and its agencies like Bihar State Electronics Development Corporation Ltd. (BELTRON) will also collaborate.\n\nThe Incubation Centre, IIT Patna (IC IITP) invites applications from eligible candidates for various positions. The roles span administration, technical operations, incubation management, and programme coordination. Interested candidates should download the application form and submit it via email to iciitp@iitp.ac.in before the deadline.\n\nNote: Please use Mozilla Firefox or Internet Explorer for downloading Word (.docx) files.",
   "contactEmail": "iciitp@iitp.ac.in",
-  "pastRoles": [
-    "Audit Officer (Consultancy)",
-    "Chief Manager – BioNEST",
-    "Scientific Officer",
-    "Senior Executive – Marketing",
-    "Senior Executive – Facility Management"
+  "recruitmentTable": [
+    {
+      "sn": 1,
+      "position": "Various Positions",
+      "notificationDate": "26.12.2025",
+      "deadline": "18.01.2026",
+      "status": "closed",
+      "documents": [
+        {
+          "label": "Notification",
+          "url": "http://iciitp.com/wp-content/uploads/2025/12/IC-IIT-Patna_Recruitment_26.12.2025.pdf",
+          "type": "PDF"
+        },
+        {
+          "label": "Application Form",
+          "url": "http://iciitp.com/wp-content/uploads/2025/12/Application-form_ICIITP.docx",
+          "type": "DOCX"
+        }
+      ]
+    },
+    {
+      "sn": 2,
+      "position": "Audit Officer – Consultancy Based",
+      "notificationDate": "—",
+      "deadline": "26.07.2025",
+      "status": "closed",
+      "documents": [
+        {
+          "label": "Notification",
+          "url": "http://iciitp.com/wp-content/uploads/2025/07/Notification_Consultant.pdf",
+          "type": "PDF"
+        },
+        {
+          "label": "Shortlisted Candidates",
+          "url": "http://iciitp.com/wp-content/uploads/2025/07/Shortlisted-Candidates-List.pdf",
+          "type": "PDF"
+        },
+        {
+          "label": "Shortlisted (Updated)",
+          "url": "http://iciitp.com/wp-content/uploads/2026/03/Shortlisted-applications_website.pdf",
+          "type": "PDF"
+        },
+        {
+          "label": "Selected List (Result)",
+          "url": "http://iciitp.com/wp-content/uploads/2026/04/Result_CAO_Web.pdf",
+          "type": "PDF"
+        }
+      ]
+    },
+    {
+      "sn": 3,
+      "position": "Internship Opportunities",
+      "notificationDate": "09.2025",
+      "deadline": "—",
+      "status": "closed",
+      "documents": [
+        {
+          "label": "Internship Application",
+          "url": "http://iciitp.com/wp-content/uploads/2025/09/Internship-application.pdf",
+          "type": "PDF"
+        },
+        {
+          "label": "Apply Now",
+          "url": "https://shorturl.at/Nexyn",
+          "type": "Link"
+        },
+        {
+          "label": "Selected Interns List",
+          "url": "http://iciitp.com/wp-content/uploads/2025/10/Selected-Interns-1.pdf",
+          "type": "PDF"
+        }
+      ]
+    },
+    {
+      "sn": 4,
+      "position": "Internship Opportunities (MSME Idea Hackathon)",
+      "notificationDate": "06.2025",
+      "deadline": "—",
+      "status": "closed",
+      "documents": [
+        {
+          "label": "Notification",
+          "url": "http://iciitp.com/wp-content/uploads/2025/06/Internship_MSME-Idea-Hackathone-3.01.pdf",
+          "type": "PDF"
+        },
+        {
+          "label": "Apply Now",
+          "url": "https://shorturl.at/Sjory",
+          "type": "Link"
+        }
+      ]
+    },
+    {
+      "sn": 5,
+      "position": "Chief Manager-BioNEST & Scientific Officer",
+      "notificationDate": "10.07.2024",
+      "deadline": "19.08.2024",
+      "status": "closed",
+      "documents": [
+        {
+          "label": "Notification",
+          "url": "http://iciitp.com/wp-content/uploads/2024/07/Recruitment-Notification_Chief-Sc-officer_web.pdf",
+          "type": "PDF"
+        },
+        {
+          "label": "Application Form",
+          "url": "http://iciitp.com/wp-content/uploads/2024/07/Application_formBionest_ICIITP.docx",
+          "type": "DOCX"
+        },
+        {
+          "label": "Shortlisted Candidates",
+          "url": "http://iciitp.com/wp-content/uploads/2024/10/Shortlisted_website-1-1.pdf",
+          "type": "PDF"
+        },
+        {
+          "label": "Final Selection Result",
+          "url": "http://iciitp.com/wp-content/uploads/2024/11/Final-selection_web-1.pdf",
+          "type": "PDF"
+        }
+      ]
+    },
+    {
+      "sn": 6,
+      "position": "Executive / Sr. Executive – Marketing",
+      "notificationDate": "11.06.2024",
+      "deadline": "11.08.2024",
+      "status": "closed",
+      "documents": [
+        {
+          "label": "Notification",
+          "url": "http://iciitp.com/wp-content/uploads/2024/08/Notification_Executive-marketing-bsft1.pdf",
+          "type": "PDF"
+        },
+        {
+          "label": "Corrigendum",
+          "url": "http://iciitp.com/wp-content/uploads/2024/08/extension-approval.pdf",
+          "type": "PDF"
+        },
+        {
+          "label": "Application Form",
+          "url": "http://iciitp.com/wp-content/uploads/2024/07/Application_formMarketing_ICIITP.docx",
+          "type": "DOCX"
+        },
+        {
+          "label": "Shortlisted Candidates",
+          "url": "http://iciitp.com/wp-content/uploads/2024/09/ICIITP-Executive-Sr.-Executive-Marketing-Shortlisted.pdf",
+          "type": "PDF"
+        },
+        {
+          "label": "Result (Selected)",
+          "url": "http://iciitp.com/wp-content/uploads/2024/11/Result_-Executive-marketing.pdf",
+          "type": "PDF"
+        }
+      ]
+    },
+    {
+      "sn": 7,
+      "position": "Sr. Executive – Facility Management",
+      "notificationDate": "21.02.2024",
+      "deadline": "31.03.2024",
+      "status": "closed",
+      "documents": [
+        {
+          "label": "Notification",
+          "url": "http://iciitp.com/wp-content/uploads/2024/02/Recruitment-Notification_Executive-FM_Web.pdf",
+          "type": "PDF"
+        },
+        {
+          "label": "Extension",
+          "url": "http://iciitp.com/wp-content/uploads/2024/03/Extension-approval_Sr-Executive.pdf",
+          "type": "PDF"
+        },
+        {
+          "label": "Application Form",
+          "url": "http://iciitp.com/wp-content/uploads/2024/02/Application_format_ICIITP3.docx",
+          "type": "DOCX"
+        },
+        {
+          "label": "Shortlisted Candidates",
+          "url": "http://iciitp.com/wp-content/uploads/2024/05/Shortlisted-applications_website.pdf",
+          "type": "PDF"
+        },
+        {
+          "label": "Result (Selected)",
+          "url": "http://iciitp.com/wp-content/uploads/2024/05/Result_Sr.-Executive.pdf",
+          "type": "PDF"
+        }
+      ]
+    },
+    {
+      "sn": 8,
+      "position": "Jr. Executive / Executive – Various Positions (CEO, COO, Manager, Asst. Manager, Jr./Executive)",
+      "notificationDate": "01.06.2023",
+      "deadline": "07.08.2023",
+      "status": "cancelled",
+      "documents": [
+        {
+          "label": "Notification",
+          "url": "http://iciitp.com/wp-content/uploads/2023/07/Recruitment-Notification_IC.pdf",
+          "type": "PDF"
+        },
+        {
+          "label": "Application Form (PDF)",
+          "url": "http://iciitp.com/wp-content/uploads/2023/07/Application_format_ICIITP.pdf",
+          "type": "PDF"
+        },
+        {
+          "label": "Application Form (DOCX)",
+          "url": "http://iciitp.com/wp-content/uploads/2023/07/Application_format_ICIITP.docx",
+          "type": "DOCX"
+        },
+        {
+          "label": "Shortlisted – CEO & COO",
+          "url": "http://iciitp.com/wp-content/uploads/2023/09/Shortlisted_CEO-COO.pdf",
+          "type": "PDF"
+        },
+        {
+          "label": "Shortlisted – Jr./Executive Level",
+          "url": "http://iciitp.com/wp-content/uploads/2024/01/Shortlisted-Applications.pdf",
+          "type": "PDF"
+        },
+        {
+          "label": "Result (Selected)",
+          "url": "http://iciitp.com/wp-content/uploads/2024/01/Result-_Accociates_Executive_IC-IITP.pdf",
+          "type": "PDF"
+        },
+        {
+          "label": "Cancellation Notice",
+          "url": "http://iciitp.com/wp-content/uploads/2025/01/Recruitment-cancellation.pdf",
+          "type": "PDF"
+        }
+      ]
+    },
+    {
+      "sn": 9,
+      "position": "Internship Opportunities",
+      "notificationDate": "10.2022",
+      "deadline": "25.10.2022",
+      "status": "closed",
+      "documents": [
+        {
+          "label": "Notification",
+          "url": "http://iciitp.com/wp-content/uploads/2022/10/Notification-_-Internship-22.pdf",
+          "type": "PDF"
+        }
+      ]
+    },
+    {
+      "sn": 10,
+      "position": "Jr. Associate/Associate and Jr. Executive/Executive – Various Positions",
+      "notificationDate": "31.07.2022",
+      "deadline": "10.08.2022",
+      "status": "closed",
+      "documents": [
+        {
+          "label": "Notification",
+          "url": "http://iciitp.com/wp-content/uploads/2022/07/IC_Recruitment-_Notification.pdf",
+          "type": "PDF"
+        },
+        {
+          "label": "Application Form",
+          "url": "http://iciitp.com/wp-content/uploads/2022/07/Application_Form.pdf",
+          "type": "PDF"
+        },
+        {
+          "label": "Shortlisted Candidates",
+          "url": "http://iciitp.com/wp-content/uploads/2022/09/Shortlisted-candidates_website-3.pdf",
+          "type": "PDF"
+        },
+        {
+          "label": "Result (Selected)",
+          "url": "http://iciitp.com/wp-content/uploads/2022/09/Selected-Candidates_-recruitment.pdf",
+          "type": "PDF"
+        },
+        {
+          "label": "Result – Jr. Executive/Executive",
+          "url": "http://iciitp.com/wp-content/uploads/2022/10/Result_Incubation_web.pdf",
+          "type": "PDF"
+        }
+      ]
+    },
+    {
+      "sn": 11,
+      "position": "Walk-in Interview – Asst. Manager and Executive-Programs",
+      "notificationDate": "—",
+      "deadline": "05.03.2022",
+      "status": "closed",
+      "documents": [
+        {
+          "label": "Notification",
+          "url": "http://iciitp.com/wp-content/uploads/2022/02/Recruitment-Notification_ICIITP.pdf",
+          "type": "PDF"
+        },
+        {
+          "label": "Shortlisted Candidates",
+          "url": "http://iciitp.com/wp-content/uploads/2022/02/Shortlisted-candidates_Website-1.pdf",
+          "type": "PDF"
+        }
+      ]
+    },
+    {
+      "sn": 12,
+      "position": "Jr. Executive/Executive – Incubation, Marketing & Technical (Advt. Ref: ICIITP/Rect/2021/01 Dt. 22.12.2021)",
+      "notificationDate": "22.12.2021",
+      "deadline": "31.01.2022",
+      "status": "closed",
+      "documents": [
+        {
+          "label": "Notification",
+          "url": "http://iciitp.com/wp-content/uploads/2021/12/Notification_Executive_ICIITP.pdf",
+          "type": "PDF"
+        },
+        {
+          "label": "Application Form",
+          "url": "http://iciitp.com/wp-content/uploads/2022/01/Application_format_Recruitment.pdf",
+          "type": "PDF"
+        },
+        {
+          "label": "Result – Jr./Executive Positions (Temporary)",
+          "url": "http://iciitp.com/wp-content/uploads/2022/03/Result_Jr-Executive-Executive-Technical-Incubation.pdf",
+          "type": "PDF"
+        }
+      ]
+    }
   ]
 }

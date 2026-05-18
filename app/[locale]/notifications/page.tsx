@@ -6,6 +6,7 @@ import { Link } from "@/i18n/navigation";
 import { Breadcrumb } from "@/components/breadcrumb";
 import { Bell, ArrowRight } from "lucide-react";
 import { tsToMs, fmtDate } from "@/lib/format";
+import { autoDateBadge, badgeStyle } from "@/lib/badge-utils";
 
 interface Props { params: Promise<{ locale: string }> }
 
@@ -115,6 +116,9 @@ export default async function NotificationsPage({ params }: Props) {
                   badge={item.n.category}
                   status="active"
                   dateStr={buildCmsDateStr(item.n.validFrom, item.n.deadline)}
+                  customBadge={item.n.customBadge}
+                  deadline={item.n.deadline}
+                  validFrom={item.n.validFrom}
                 />
               ) : (
                 <NotifCard
@@ -145,6 +149,9 @@ export default async function NotificationsPage({ params }: Props) {
                   badge={item.n.category}
                   status="completed"
                   dateStr={buildCmsDateStr(item.n.validFrom, item.n.deadline)}
+                  customBadge={item.n.customBadge}
+                  deadline={item.n.deadline}
+                  validFrom={item.n.validFrom}
                 />
               ) : (
                 <NotifCard
@@ -165,7 +172,7 @@ export default async function NotificationsPage({ params }: Props) {
 }
 
 function NotifCard({
-  href, title, subtitle, badge, status, dateStr,
+  href, title, subtitle, badge, status, dateStr, customBadge, deadline, validFrom,
 }: {
   href: string;
   title: string;
@@ -173,7 +180,11 @@ function NotifCard({
   badge?: string;
   status: "active" | "completed";
   dateStr: string;
+  customBadge?: string;
+  deadline?: unknown;
+  validFrom?: unknown;
 }) {
+  const autoBadge = autoDateBadge({ deadline, validFrom });
   return (
     <Link
       href={href}
@@ -192,11 +203,22 @@ function NotifCard({
               </span>
             )}
           </div>
-          {status === "active" ? (
-            <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-green-100 text-green-800 shrink-0">Active</span>
-          ) : (
-            <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-gray-100 text-gray-500 shrink-0">Completed</span>
-          )}
+          <div className="flex items-center gap-1.5 shrink-0 flex-wrap">
+            {autoBadge ? (
+              <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full shrink-0" style={badgeStyle(autoBadge.variant)}>
+                {autoBadge.label}
+              </span>
+            ) : status === "active" ? (
+              <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-green-100 text-green-800 shrink-0">Active</span>
+            ) : (
+              <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-gray-100 text-gray-500 shrink-0">Completed</span>
+            )}
+            {customBadge && (
+              <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full shrink-0" style={badgeStyle("orange")}>
+                {customBadge}
+              </span>
+            )}
+          </div>
         </div>
         {subtitle && (
           <p className="text-sm text-[--color-text-subtle] line-clamp-2">{subtitle}</p>

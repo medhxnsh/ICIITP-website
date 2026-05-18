@@ -44,6 +44,7 @@ export interface CmsEvent {
   applyUrl: string;
   contact: string;
   published: boolean;
+  customBadge?: string;
   createdAt: Timestamp;
   updatedAt: Timestamp;
   customFields: CustomField[];

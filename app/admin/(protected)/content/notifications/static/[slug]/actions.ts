@@ -7,6 +7,21 @@ import { revalidatePath } from "next/cache";
 
 const VALID_SLUGS = ["careers", "call-for-proposals", "niq-tender"] as const;
 
+export interface RecruitmentDocumentInput {
+  label: string;
+  url: string;
+  type: string;
+}
+
+export interface RecruitmentEntryInput {
+  sn: number;
+  position: string;
+  notificationDate: string;
+  deadline: string;
+  status: "open" | "closed" | "cancelled";
+  documents: RecruitmentDocumentInput[];
+}
+
 export interface StaticNotificationFormData {
   title: string;
   summary: string;
@@ -17,6 +32,7 @@ export interface StaticNotificationFormData {
   contactEmail: string;
   externalUrl: string;
   downloads: Array<{ title: string; path: string; format: string }>;
+  recruitmentTable?: RecruitmentEntryInput[];
 }
 
 export async function saveStaticNotificationAction(
@@ -47,6 +63,18 @@ export async function saveStaticNotificationAction(
     else delete updated.externalUrl;
     if (data.downloads.length > 0) updated.downloads = data.downloads;
     else delete updated.downloads;
+    if (data.recruitmentTable && data.recruitmentTable.length > 0) {
+      updated.recruitmentTable = data.recruitmentTable.map((row, i) => ({
+        sn: i + 1,
+        position: row.position.trim(),
+        notificationDate: row.notificationDate.trim() || undefined,
+        deadline: row.deadline.trim() || undefined,
+        status: row.status,
+        documents: row.documents.filter((d) => d.label.trim() && d.url.trim()),
+      }));
+    } else {
+      delete updated.recruitmentTable;
+    }
 
     // NOTE: writes back to the repo's content JSON. Works only on
     // writable filesystems (local dev). Most serverless deploys have

@@ -224,6 +224,21 @@ export interface NotificationDownload {
   format: string;
 }
 
+export interface RecruitmentDocument {
+  label: string;
+  url: string;
+  type: string; // "PDF" | "DOCX" | "Link" etc.
+}
+
+export interface RecruitmentEntry {
+  sn: number;
+  position: string;
+  notificationDate?: string;
+  deadline?: string;
+  status: "open" | "closed" | "cancelled";
+  documents: RecruitmentDocument[];
+}
+
 export interface Notification {
   slug: string;
   title: string;
@@ -238,6 +253,7 @@ export interface Notification {
   externalUrl?: string;
   downloads?: NotificationDownload[];
   pastRoles?: string[];
+  recruitmentTable?: RecruitmentEntry[];
 }
 
 const NOTIFICATION_SLUGS = ["careers","call-for-proposals","niq-tender"] as const;

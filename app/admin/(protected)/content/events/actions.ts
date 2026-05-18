@@ -33,6 +33,7 @@ export interface EventFormData {
   applyUrl: string;
   contact: string;
   published: boolean;
+  customBadge?: string;
   customFields: CustomField[];
 }
 

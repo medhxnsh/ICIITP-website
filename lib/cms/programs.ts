@@ -24,6 +24,8 @@ export interface CmsProgram {
   about?: string;
   status?: string;
   statusNote?: string;
+  applicationDeadline?: string; // ISO date "YYYY-MM-DD" for auto-badge
+  customBadge?: string;
   applyUrl?: string;
   equipmentFormUrl?: string;
   applicationFormUrl?: string;

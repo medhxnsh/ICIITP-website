@@ -146,6 +146,8 @@ export function ProgramForm({ slug, initial, isStaticBacked, onSave, onDelete }:
   const [about, setAbout] = useState(initial.about ?? "");
   const [status, setStatus] = useState(initial.status ?? "");
   const [statusNote, setStatusNote] = useState(initial.statusNote ?? "");
+  const [applicationDeadline, setApplicationDeadline] = useState(initial.applicationDeadline ?? "");
+  const [customBadge, setCustomBadge] = useState(initial.customBadge ?? "");
   const [applyUrl, setApplyUrl] = useState(initial.applyUrl ?? "");
   const [showEquipmentForm, setShowEquipmentForm] = useState(!!initial.equipmentFormUrl);
   const [equipmentFormUrl, setEquipmentFormUrl] = useState(initial.equipmentFormUrl ?? "");
@@ -177,6 +179,8 @@ export function ProgramForm({ slug, initial, isStaticBacked, onSave, onDelete }:
       published,
       logoUrl: logoUrl.trim() || undefined,
       title, tagline, about, status, statusNote,
+      applicationDeadline: applicationDeadline || undefined,
+      customBadge: customBadge.trim() || undefined,
       applyUrl, equipmentFormUrl: showEquipmentForm ? equipmentFormUrl : undefined, applicationFormUrl, contactEmail,
       grant, schemeOutlay, stipend, duration,
       eligibility, notEligible, objectives, targetAudience,
@@ -298,6 +302,20 @@ export function ProgramForm({ slug, initial, isStaticBacked, onSave, onDelete }:
           <div>
             <label className={labelCls} style={labelStyle}>Status note</label>
             <input value={statusNote} onChange={(e) => setStatusNote(e.target.value)} placeholder="e.g. Applications close June 30" className={inputCls} style={inputStyle} />
+          </div>
+          <div>
+            <label className={labelCls} style={labelStyle}>
+              Application deadline <span className="font-normal" style={{ color: "#aab89e" }}>(auto-shows "Applications Closed" or "Closing Soon" when date passes)</span>
+            </label>
+            <input type="date" value={applicationDeadline} onChange={(e) => setApplicationDeadline(e.target.value)} className={inputCls} style={inputStyle} />
+          </div>
+          <div>
+            <label className={labelCls} style={labelStyle}>
+              Custom badge <span className="font-normal" style={{ color: "#aab89e" }}>(e.g. "Rolling Applications", "Interview Stage")</span>
+            </label>
+            <input value={customBadge} onChange={(e) => setCustomBadge(e.target.value)} placeholder="Leave blank to rely on status + dates" className={inputCls} style={inputStyle} />
+          </div>
+          <div className="hidden">{/* spacer */}
           </div>
           <div>
             <label className={labelCls} style={labelStyle}>Apply URL</label>

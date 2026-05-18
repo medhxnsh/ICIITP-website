@@ -147,6 +147,7 @@ export function EventForm({ event, onSave }: Props) {
   const [imageLayout, setImageLayout] = useState<ImageLayout>(event?.imageLayout ?? "banner");
   const [applyUrl, setApplyUrl] = useState(event?.applyUrl ?? "");
   const [contact, setContact] = useState(event?.contact ?? "");
+  const [customBadge, setCustomBadge] = useState(event?.customBadge ?? "");
   const [published, setPublished] = useState(event?.published ?? false);
   const [customFields, setCustomFields] = useState<CustomField[]>(event?.customFields ?? []);
 
@@ -174,6 +175,7 @@ export function EventForm({ event, onSave }: Props) {
       imageLayout,
       applyUrl: applyUrl.trim(),
       contact: contact.trim(),
+      customBadge: customBadge.trim() || undefined,
       published,
       customFields,
     };
@@ -300,11 +302,23 @@ export function EventForm({ event, onSave }: Props) {
             <input type="date" value={closingDate} onChange={(e) => setClosingDate(e.target.value)} className={inputCls} style={inputStyle} />
           </div>
         </div>
-        <div className="mt-4">
+        <div className="mt-4 flex flex-col sm:flex-row gap-4">
           <label className="flex items-center gap-2.5 cursor-pointer">
             <input type="checkbox" checked={autoClose} onChange={(e) => setAutoClose(e.target.checked)} className="w-4 h-4 rounded" style={{ accentColor: "#3a5214" }} />
             <span className="text-sm" style={{ color: "#1c2e06" }}>Auto-close when closing date passes</span>
           </label>
+          <div className="flex-1">
+            <label className={labelCls} style={labelStyle}>
+              Custom badge <span className="font-normal" style={{ color: "#aab89e" }}>(e.g. "Results Announced", "Interview Stage" — shown alongside auto status)</span>
+            </label>
+            <input
+              value={customBadge}
+              onChange={(e) => setCustomBadge(e.target.value)}
+              placeholder="Leave blank to use auto date-based badge only"
+              className={inputCls}
+              style={inputStyle}
+            />
+          </div>
         </div>
       </section>
 

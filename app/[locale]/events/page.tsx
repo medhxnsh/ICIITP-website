@@ -5,6 +5,7 @@ import { getPublishedEvents, resolveStatus } from "@/lib/cms/events";
 import { Link } from "@/i18n/navigation";
 import { Breadcrumb } from "@/components/breadcrumb";
 import { Calendar, ArrowRight } from "lucide-react";
+import { eventStatusBadge, badgeStyle } from "@/lib/badge-utils";
 
 export const revalidate = 60; // ISR: re-fetch at most once per minute
 
@@ -23,17 +24,9 @@ interface DisplayEvent {
   status: string;
   organiser: string;
   archived: boolean;
+  customBadge?: string;
 }
 
-const STATUS_STYLES: Record<string, string> = {
-  Active:    "bg-green-100 text-green-800",
-  Open:      "bg-green-100 text-green-800",
-  Ongoing:   "bg-green-100 text-green-800",
-  Upcoming:  "bg-blue-100 text-blue-800",
-  Recurring: "bg-blue-100 text-blue-800",
-  Concluded: "bg-gray-100 text-gray-600",
-  Closed:    "bg-gray-100 text-gray-600",
-};
 
 export default async function EventsPage({ params }: Props) {
   const { locale } = await params;
@@ -43,15 +36,19 @@ export default async function EventsPage({ params }: Props) {
   let cmsEvents: DisplayEvent[] = [];
   try {
     const raw = await getPublishedEvents();
-    cmsEvents = raw.map((ev) => ({
-      slug: ev.slug,
-      title: ev.title,
-      tagline: ev.tagline,
-      category: ev.category,
-      status: resolveStatus(ev),
-      organiser: "IC IITP",
-      archived: resolveStatus(ev) === "Closed",
-    }));
+    cmsEvents = raw.map((ev) => {
+      const status = resolveStatus(ev);
+      return {
+        slug: ev.slug,
+        title: ev.title,
+        tagline: ev.tagline,
+        category: ev.category,
+        status,
+        organiser: "IC IITP",
+        archived: status === "Closed",
+        customBadge: ev.customBadge,
+      };
+    });
   } catch {
     // Firestore unavailable — fall back to static only
   }
@@ -116,7 +113,7 @@ export default async function EventsPage({ params }: Props) {
 }
 
 function EventCard({ event }: { event: DisplayEvent }) {
-  const statusClass = STATUS_STYLES[event.status] ?? "bg-gray-100 text-gray-600";
+  const statusBadge = eventStatusBadge(event.status);
   return (
     <Link
       href={`/events/${event.slug}`}
@@ -130,9 +127,16 @@ function EventCard({ event }: { event: DisplayEvent }) {
           <h3 className="font-bold text-[--color-text] group-hover:text-[--color-primary] transition-colors leading-snug">
             {event.title}
           </h3>
-          <span className={`text-xs font-medium px-2 py-0.5 rounded-full shrink-0 ${statusClass}`}>
-            {event.status}
-          </span>
+          <div className="flex items-center gap-1.5 shrink-0 flex-wrap">
+            <span className="text-xs font-medium px-2 py-0.5 rounded-full" style={badgeStyle(statusBadge.variant)}>
+              {statusBadge.label}
+            </span>
+            {event.customBadge && (
+              <span className="text-xs font-medium px-2 py-0.5 rounded-full" style={badgeStyle("orange")}>
+                {event.customBadge}
+              </span>
+            )}
+          </div>
         </div>
         <p className="text-sm text-[--color-text-subtle] line-clamp-2 mb-2">{event.tagline}</p>
         <p className="text-xs text-[--color-muted]">

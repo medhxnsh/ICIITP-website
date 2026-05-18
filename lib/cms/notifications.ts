@@ -39,6 +39,7 @@ export interface CmsNotification {
   attachmentUrl: string;
   attachments?: CmsAttachment[];
   coverImageUrl?: string;
+  customBadge?: string;
   published: boolean;
   createdAt: Timestamp;
   updatedAt: Timestamp;
@@ -103,6 +104,7 @@ export interface NotificationInput {
   attachmentUrl: string;
   attachments?: CmsAttachment[];
   coverImageUrl?: string;
+  customBadge?: string;
   published: boolean;
 }
 
