@@ -403,7 +403,7 @@ export function Nav() {
       <div className="text-white text-sm py-2.5 relative overflow-hidden" style={{ backgroundColor: "#3a5214" }}>
         <span className="absolute left-0 top-0 bottom-0 w-1.5" style={{ backgroundColor: "#f79420" }} aria-hidden="true" />
         <span className="absolute right-0 top-0 bottom-0 w-1.5" style={{ backgroundColor: "#f79420" }} aria-hidden="true" />
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
+        <div className="w-full px-5 flex items-center justify-between">
           <span className="font-semibold tracking-widest uppercase">Incubation Centre · IIT Patna</span>
           <span aria-hidden="true" className="text-white/80 tracking-wide hidden sm:block">
             India&apos;s leading ESDM &amp; Medical Electronics Incubator
