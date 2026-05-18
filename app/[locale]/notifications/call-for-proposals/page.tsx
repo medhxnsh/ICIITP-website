@@ -116,7 +116,6 @@ export default async function NotificationPage({ params }: Props) {
                 <tr key={row.sn} style={{ borderBottom: "1px solid #e8f0e0", backgroundColor: i % 2 === 0 ? "white" : "#fafdf7" }}>
                   <td className="px-4 py-4">
                     <p className="font-semibold leading-snug" style={{ color: "#1c2e06" }}>{row.title}</p>
-                    {row.note && <p className="text-xs mt-1" style={{ color: "#7a8e6a" }}>{row.note}</p>}
                     {row.moreDetailsUrl && (
                       <a href={row.moreDetailsUrl} target="_blank" rel="noopener noreferrer"
                         className="text-xs font-medium mt-1 inline-block hover:underline" style={{ color: "#f79420" }}>
@@ -142,6 +141,15 @@ export default async function NotificationPage({ params }: Props) {
               ))}
             </tbody>
           </table>
+          {n.proposalsTable.some((r) => r.note) && (
+            <div className="mt-3 space-y-1">
+              {n.proposalsTable.filter((r) => r.note).map((r) => (
+                <p key={r.sn} className="text-xs" style={{ color: "#7a8e6a" }}>
+                  {r.note!.replace("for download", "to download")}
+                </p>
+              ))}
+            </div>
+          )}
         </section>
       )}
 
