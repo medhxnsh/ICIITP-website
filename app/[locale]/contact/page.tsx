@@ -84,11 +84,9 @@ export default async function ContactPage({ params }: Props) {
           </div>
 
           {/* Contact form */}
-          <div className="rounded-xl p-6 text-white" style={{ backgroundColor: "#3a5214" }}>
-            <h2 className="font-bold text-lg mb-4">Send us a message</h2>
-            <div style={{ color: "#1c2e06" }}>
-              <ContactForm locale={locale} />
-            </div>
+          <div className="rounded-xl border border-gray-200 bg-white p-6">
+            <h2 className="font-bold text-lg mb-5" style={{ color: "#3a5214" }}>Send us a message</h2>
+            <ContactForm locale={locale} />
           </div>
         </div>
 

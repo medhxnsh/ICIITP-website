@@ -45,6 +45,24 @@ export default async function AdminDashboard() {
   const totalPending = Object.values(pendingByType).reduce((a, b) => a + b, 0);
   const lastSubmissionMs = submissions.length > 0 ? tsToMs(submissions[0].createdAt) : 0;
 
+  // Status chart data
+  const statusCounts = submissions.reduce<Record<string, number>>((acc, s) => {
+    acc[s.status] = (acc[s.status] ?? 0) + 1;
+    return acc;
+  }, {});
+  const typeCounts = submissions.reduce<Record<string, number>>((acc, s) => {
+    acc[s.type] = (acc[s.type] ?? 0) + 1;
+    return acc;
+  }, {});
+  const totalSubmissions = submissions.length;
+
+  const STATUS_META: { key: string; label: string; color: string; bg: string }[] = [
+    { key: "pending",   label: "Pending",   color: "#c2410c", bg: "#ffedd5" },
+    { key: "reviewing", label: "Reviewing", color: "#1d4ed8", bg: "#dbeafe" },
+    { key: "accepted",  label: "Accepted",  color: "#166534", bg: "#dcfce7" },
+    { key: "rejected",  label: "Rejected",  color: "#991b1b", bg: "#fee2e2" },
+  ];
+
   // CMS stats
   const lastEventMs = cmsEvents.reduce((mx, e) => Math.max(mx, tsToMs(e.updatedAt)), 0);
   const upcomingEvents = cmsEvents.filter((e) => e.status === "Upcoming" || e.status === "Ongoing").length;
@@ -216,6 +234,70 @@ export default async function AdminDashboard() {
               </div>
             </Link>
           ))}
+        </div>
+      </section>
+
+      {/* Applications status chart */}
+      <section className="mb-8">
+        <h2 className="text-xs font-black uppercase tracking-widest mb-4" style={{ color: "#5a7c20" }}>Applications overview</h2>
+        <div className="bg-white rounded-xl border p-6" style={{ borderColor: "#e8f0e0" }}>
+          <div className="grid sm:grid-cols-2 gap-8">
+
+            {/* Status breakdown */}
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-wide mb-4" style={{ color: "#5a6644" }}>By status · {totalSubmissions} total</p>
+              <div className="space-y-3">
+                {STATUS_META.map(({ key, label, color, bg }) => {
+                  const count = statusCounts[key] ?? 0;
+                  const pct = totalSubmissions > 0 ? Math.round((count / totalSubmissions) * 100) : 0;
+                  return (
+                    <div key={key}>
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-xs font-semibold" style={{ color }}>{label}</span>
+                        <span className="text-xs font-bold" style={{ color }}>{count}</span>
+                      </div>
+                      <div className="w-full rounded-full h-2.5" style={{ backgroundColor: "#f0f7e6" }}>
+                        <div
+                          className="h-2.5 rounded-full transition-all"
+                          style={{ width: `${pct}%`, backgroundColor: color, minWidth: count > 0 ? "6px" : "0" }}
+                        />
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Type breakdown */}
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-wide mb-4" style={{ color: "#5a6644" }}>By type</p>
+              <div className="space-y-3">
+                {Object.entries(typeCounts).sort((a, b) => b[1] - a[1]).map(([type, count]) => {
+                  const pct = totalSubmissions > 0 ? Math.round((count / totalSubmissions) * 100) : 0;
+                  return (
+                    <div key={type}>
+                      <div className="flex items-center justify-between mb-1">
+                        <Link href={`/admin/applications?type=${type}`} className="text-xs font-semibold hover:underline" style={{ color: "#3a5214" }}>
+                          {type}
+                        </Link>
+                        <span className="text-xs font-bold" style={{ color: "#1c2e06" }}>{count}</span>
+                      </div>
+                      <div className="w-full rounded-full h-2.5" style={{ backgroundColor: "#f0f7e6" }}>
+                        <div
+                          className="h-2.5 rounded-full"
+                          style={{ width: `${pct}%`, backgroundColor: "#3a5214", minWidth: count > 0 ? "6px" : "0" }}
+                        />
+                      </div>
+                    </div>
+                  );
+                })}
+                {Object.keys(typeCounts).length === 0 && (
+                  <p className="text-xs py-4 text-center" style={{ color: "#aab89e" }}>No submissions yet</p>
+                )}
+              </div>
+            </div>
+
+          </div>
         </div>
       </section>
 
