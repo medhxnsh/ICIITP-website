@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { setRequestLocale } from "next-intl/server";
 import { getAllPrograms } from "@/lib/content";
+import { getAllWpPrograms } from "@/lib/cms/wp-programs";
 import { getAllCmsPrograms } from "@/lib/cms/programs";
 import { STATIC_PROGRAM_SLUGS } from "@/lib/static-slugs";
 import { ProgramCard } from "@/components/program-card";
@@ -29,9 +30,13 @@ export default async function ProgramsPage({ params }: Props) {
   // Pull in any published CMS-only programmes (admin-created entries without a
   // static JSON backing). They render alongside the canonical programmes with a
   // simpler card that defaults to the ICIITP logo when none is uploaded.
-  const cmsOnlyPublished = await getAllCmsPrograms()
-    .then((all) => all.filter((p) => p.published && !STATIC_SLUGS.has(p.slug)))
-    .catch(() => []);
+  const cmsOnlyPublished = await getAllWpPrograms()
+    .then((all) => all.filter((p) => !STATIC_SLUGS.has(p.slug)))
+    .catch(() =>
+      getAllCmsPrograms()
+        .then((all) => all.filter((p) => p.published && !STATIC_SLUGS.has(p.slug)))
+        .catch(() => [])
+    );
 
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">

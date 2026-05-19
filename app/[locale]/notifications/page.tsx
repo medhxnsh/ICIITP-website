@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { setRequestLocale } from "next-intl/server";
 import { getAllNotifications, isNotificationActive } from "@/lib/content";
+import { getAllWpNotifications } from "@/lib/cms/wp-notifications";
 import { getPublishedNotifications } from "@/lib/cms/notifications";
 import { Link } from "@/i18n/navigation";
 import { Breadcrumb } from "@/components/breadcrumb";
@@ -39,7 +40,7 @@ function isCmsActive(deadline: unknown, validFrom: unknown): boolean {
 
 type AnyNotif =
   | { kind: "static"; n: import("@/lib/content").Notification; sortMs: number }
-  | { kind: "cms"; n: import("@/lib/cms/notifications").CmsNotificationDoc; sortMs: number };
+  | { kind: "cms"; n: import("@/lib/cms/notifications").CmsNotificationDoc | import("@/lib/cms/wp-notifications").WpNotificationDoc; sortMs: number };
 
 const STATIC_HREFS: Record<string, string> = {
   careers: "/notifications/careers",
@@ -59,11 +60,11 @@ export default async function NotificationsPage({ params }: Props) {
 
   const [staticNotifs, cmsNotifs] = await Promise.all([
     Promise.resolve(getAllNotifications(locale)),
-    getPublishedNotifications().catch(() => []),
+    getAllWpNotifications().catch(() => getPublishedNotifications().catch(() => [])),
   ]);
 
   const all: AnyNotif[] = [
-    ...cmsNotifs.map((n) => ({ kind: "cms" as const, n, sortMs: tsToMs(n.createdAt) })),
+    ...cmsNotifs.map((n) => ({ kind: "cms" as const, n, sortMs: tsToMs((n as import("@/lib/cms/notifications").CmsNotificationDoc).createdAt ?? n.validFrom) })),
     ...staticNotifs.map((n) => ({
       kind: "static" as const,
       n,

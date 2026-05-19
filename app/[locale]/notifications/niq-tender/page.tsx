@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { setRequestLocale } from "next-intl/server";
 import { getNotification, isNotificationActive } from "@/lib/content";
+import { getWpNotificationsByType } from "@/lib/cms/wp-notifications";
 import { getNotificationsByType } from "@/lib/cms/notifications";
 import { getDownloadsByPage } from "@/lib/cms/downloads";
 import { Breadcrumb } from "@/components/breadcrumb";
@@ -22,12 +23,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return { title: n.title, description: n.summary };
 }
 
-function isCmsActive(n: CmsNotificationDoc): boolean {
+function isCmsActive(n: { deadline: unknown; validFrom?: unknown }): boolean {
   const dl = tsToMs(n.deadline);
   return !(dl && dl < Date.now());
 }
 
-function CmsNotificationCard({ n }: { n: CmsNotificationDoc }) {
+function CmsNotificationCard({ n }: { n: CmsNotificationDoc | import("@/lib/cms/wp-notifications").WpNotificationDoc }) {
   const active = isCmsActive(n);
   return (
     <article className="mb-10 pb-10 border-b border-[var(--color-border)] last:border-0 last:mb-0 last:pb-0">
@@ -68,8 +69,10 @@ export default async function NotificationPage({ params }: Props) {
   const { locale } = await params;
   setRequestLocale(locale);
 
-  let cmsItems: CmsNotificationDoc[] = [];
-  try { cmsItems = await getNotificationsByType(CMS_TYPE); } catch {}
+  let cmsItems: (CmsNotificationDoc | import("@/lib/cms/wp-notifications").WpNotificationDoc)[] = [];
+  try { cmsItems = await getWpNotificationsByType(CMS_TYPE); } catch {
+    try { cmsItems = await getNotificationsByType(CMS_TYPE); } catch {}
+  }
   const cmsDocs = await getDownloadsByPage("notifications/niq-tender").catch(() => []);
 
   if (cmsItems.length > 0) {

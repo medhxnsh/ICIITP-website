@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { setRequestLocale } from "next-intl/server";
 import { getAllEvents, isEventArchived } from "@/lib/content";
+import { getWpPublishedEvents, isWpEventArchived } from "@/lib/cms/wp-events";
 import { getPublishedEvents, resolveStatus } from "@/lib/cms/events";
 import { Link } from "@/i18n/navigation";
 import { Breadcrumb } from "@/components/breadcrumb";
@@ -32,25 +33,32 @@ export default async function EventsPage({ params }: Props) {
   const { locale } = await params;
   setRequestLocale(locale);
 
-  // Fetch CMS events from Firestore (published only)
+  // Fetch events — WP first, Firebase fallback
   let cmsEvents: DisplayEvent[] = [];
   try {
-    const raw = await getPublishedEvents();
-    cmsEvents = raw.map((ev) => {
-      const status = resolveStatus(ev);
-      return {
-        slug: ev.slug,
-        title: ev.title,
-        tagline: ev.tagline,
-        category: ev.category,
-        status,
-        organiser: "IC IITP",
-        archived: status === "Closed",
-        customBadge: ev.customBadge,
-      };
-    });
+    const raw = await getWpPublishedEvents();
+    cmsEvents = raw.map((ev) => ({
+      slug: ev.slug,
+      title: ev.title,
+      tagline: ev.tagline,
+      category: ev.category,
+      status: ev.status,
+      organiser: ev.contactEmail || "IC IITP",
+      archived: isWpEventArchived(ev),
+      customBadge: ev.customBadge,
+    }));
   } catch {
-    // Firestore unavailable — fall back to static only
+    try {
+      const raw = await getPublishedEvents();
+      cmsEvents = raw.map((ev) => {
+        const status = resolveStatus(ev);
+        return {
+          slug: ev.slug, title: ev.title, tagline: ev.tagline,
+          category: ev.category, status, organiser: "IC IITP",
+          archived: status === "Closed", customBadge: ev.customBadge,
+        };
+      });
+    } catch {}
   }
 
   // Static events from JSON, excluding slugs already covered by CMS

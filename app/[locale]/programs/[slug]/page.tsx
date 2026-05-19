@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { setRequestLocale } from "next-intl/server";
 import { getAllPrograms, getProgram, getProgramSlugs, type Program } from "@/lib/content";
+import { getWpProgramBySlug } from "@/lib/cms/wp-programs";
 import { getCmsProgramBySlug } from "@/lib/cms/programs";
 import { Breadcrumb } from "@/components/breadcrumb";
 import { ProgramCard } from "@/components/program-card";
@@ -32,7 +33,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   let description: string | undefined;
   try { const p = getProgram(slug, locale); title = p.title; description = p.tagline; } catch {}
   if (!title) {
-    const cms = await getCmsProgramBySlug(slug).catch(() => null);
+    const cms = await getWpProgramBySlug(slug).catch(() => getCmsProgramBySlug(slug).catch(() => null));
     title = cms?.title ?? slug;
     description = cms?.tagline;
   }
@@ -110,7 +111,7 @@ export default async function ProgramPage({ params }: Props) {
   let programImages: { url: string; alt?: string }[] = [];
   let imageLayout: "banner" | "grid" | "carousel" = "banner";
 
-  const cms = await getCmsProgramBySlug(slug).catch(() => null);
+  const cms = await getWpProgramBySlug(slug).catch(() => getCmsProgramBySlug(slug).catch(() => null));
   let base: Program | null = null;
   try { base = getProgram(slug, locale); } catch {}
 
