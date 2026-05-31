@@ -9,7 +9,7 @@ export function HeroText() {
     <div className="text-center pt-12 pb-4 px-4">
       <motion.p
         className="text-xs font-semibold uppercase tracking-widest mb-4"
-        style={{ color: "#5a7c20" }}
+        style={{ color: "var(--color-brand-600)" }}
         initial={{ opacity: 0, y: -16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, ease: EASE }}
@@ -19,7 +19,7 @@ export function HeroText() {
 
       <motion.h1
         className="text-3xl sm:text-4xl lg:text-5xl font-black max-w-3xl mx-auto leading-tight mb-4"
-        style={{ color: "#3a5214" }}
+        style={{ color: "var(--color-brand-800)" }}
         initial={{ opacity: 0, y: 24 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.75, delay: 0.12, ease: EASE }}

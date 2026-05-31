@@ -7,7 +7,10 @@ import { useTransition, useState } from "react";
 
 interface ContactCurrent {
   address: string;
-  phone: string;
+  enquiries_name: string;
+  enquiries_phone: string;
+  incubation_name: string;
+  incubation_phone: string;
   email: string;
   hours: string;
   maps_embed_url: string;
@@ -22,23 +25,23 @@ function Field({ label, name, value, type = "text", hint }: { label: string; nam
   const isTextarea = type === "textarea";
   return (
     <div>
-      <label className="block text-sm font-semibold mb-1" style={{ color: "#1c2e06" }}>{label}</label>
-      {hint && <p className="text-xs mb-1.5" style={{ color: "#7a8e6a" }}>{hint}</p>}
+      <label className="block text-sm font-semibold mb-1" style={{ color: "var(--color-brand-950)" }}>{label}</label>
+      {hint && <p className="text-xs mb-1.5" style={{ color: "var(--color-text-secondary)" }}>{hint}</p>}
       {isTextarea ? (
         <textarea
           name={name}
           defaultValue={value}
           rows={3}
-          className="w-full rounded-lg border px-3 py-2 text-sm focus:outline-none focus:ring-2"
-          style={{ borderColor: "#d4e6c4" }}
+          className="w-full rounded-lg border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[--color-brand-500]"
+          style={{ borderColor: "var(--color-input-border)" }}
         />
       ) : (
         <input
           name={name}
           type="text"
           defaultValue={value}
-          className="w-full rounded-lg border px-3 py-2 text-sm focus:outline-none focus:ring-2"
-          style={{ borderColor: "#d4e6c4" }}
+          className="w-full rounded-lg border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[--color-brand-500]"
+          style={{ borderColor: "var(--color-input-border)" }}
         />
       )}
     </div>
@@ -63,21 +66,37 @@ export function ContactSectionForm({ current, onSave }: Props) {
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
       <Field label="Address" name="address" value={current.address} type="textarea"
-        hint="Shown on the contact page. Use line breaks for multi-line address." />
-      <Field label="Phone" name="phone" value={current.phone} />
+        hint="Use line breaks for multi-line address." />
+
+      <div>
+        <p className="text-sm font-semibold mb-2" style={{ color: "var(--color-brand-950)" }}>General Enquiries</p>
+        <div className="grid grid-cols-2 gap-3">
+          <Field label="Contact name" name="enquiries_name" value={current.enquiries_name} />
+          <Field label="Phone number" name="enquiries_phone" value={current.enquiries_phone} />
+        </div>
+      </div>
+
+      <div>
+        <p className="text-sm font-semibold mb-2" style={{ color: "var(--color-brand-950)" }}>For Getting Incubated</p>
+        <div className="grid grid-cols-2 gap-3">
+          <Field label="Contact name" name="incubation_name" value={current.incubation_name} />
+          <Field label="Phone number" name="incubation_phone" value={current.incubation_phone} />
+        </div>
+      </div>
+
       <Field label="Email" name="email" value={current.email} />
       <Field label="Office Hours" name="hours" value={current.hours} />
       <Field label="Google Maps Embed URL" name="maps_embed_url" value={current.maps_embed_url}
         hint="Paste the full src URL from a Google Maps embed iframe." />
 
       {error && <p className="text-sm text-red-600">{error}</p>}
-      {saved && <p className="text-sm font-medium" style={{ color: "#3a5214" }}>✓ Saved — changes are live.</p>}
+      {saved && <p className="text-sm font-medium" style={{ color: "var(--color-brand-800)" }}>✓ Saved — changes are live.</p>}
 
       <button
         type="submit"
         disabled={pending}
         className="px-6 py-2.5 rounded-lg text-sm font-semibold text-white disabled:opacity-60"
-        style={{ backgroundColor: "#3a5214" }}
+        style={{ backgroundColor: "var(--color-brand-800)" }}
       >
         {pending ? "Saving…" : "Save Changes"}
       </button>

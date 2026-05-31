@@ -8,12 +8,14 @@ export interface BreadcrumbItem {
 
 interface BreadcrumbProps {
   items: BreadcrumbItem[];
+  variant?: "default" | "light";
 }
 
-export function Breadcrumb({ items }: BreadcrumbProps) {
+export function Breadcrumb({ items, variant = "default" }: BreadcrumbProps) {
+  const isLight = variant === "light";
   return (
     <nav aria-label="Breadcrumb" className="mb-6">
-      <ol className="flex items-center flex-wrap gap-1 text-sm text-[--color-muted]">
+      <ol className={`flex items-center flex-wrap gap-1 text-sm ${isLight ? "text-white/75" : "text-[--color-muted]"}`}>
         {items.map((item, i) => {
           const isLast = i === items.length - 1;
           return (
@@ -22,11 +24,17 @@ export function Breadcrumb({ items }: BreadcrumbProps) {
                 <ChevronRight className="w-3.5 h-3.5 shrink-0" aria-hidden="true" />
               )}
               {isLast || !item.href ? (
-                <span aria-current={isLast ? "page" : undefined} className={isLast ? "font-medium text-[--color-text]" : ""}>
+                <span
+                  aria-current={isLast ? "page" : undefined}
+                  className={isLast ? `font-medium ${isLight ? "text-white/90" : "text-[--color-text]"}` : ""}
+                >
                   {item.label}
                 </span>
               ) : (
-                <Link href={item.href} className="hover:text-[--color-primary] transition-colors">
+                <Link
+                  href={item.href}
+                  className={`transition-colors ${isLight ? "hover:text-white/80" : "hover:text-[--color-primary]"}`}
+                >
                   {item.label}
                 </Link>
               )}

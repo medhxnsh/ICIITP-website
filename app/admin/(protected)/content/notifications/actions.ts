@@ -6,9 +6,9 @@ import {
   updateNotification,
   deleteNotification,
   type NotificationInput,
+  type CmsNotificationExtras,
 } from "@/lib/cms/notifications";
-import { revalidatePath } from "next/cache";
-import { Timestamp } from "firebase-admin/firestore";
+import { revalidatePath, revalidateTag } from "next/cache";
 
 export interface NotificationFormData {
   title: string;
@@ -23,21 +23,24 @@ export interface NotificationFormData {
   coverImageUrl: string;
   customBadge?: string;
   published: boolean;
+  extras?: CmsNotificationExtras;
 }
 
 function toInput(data: NotificationFormData): NotificationInput {
   return {
     ...data,
-    deadline: data.deadline ? Timestamp.fromDate(new Date(data.deadline)) : null,
-    validFrom: data.validFrom ? Timestamp.fromDate(new Date(data.validFrom)) : null,
     attachments: data.attachments.length ? data.attachments : [],
     coverImageUrl: data.coverImageUrl || "",
+    extras: data.extras,
   };
 }
 
-function revalidateAll() {
-  revalidatePath("/notifications");
-  revalidatePath("/admin/content/notifications");
+function revalidateAll(id?: string) {
+  revalidateTag("notifications", "default");
+  if (id) revalidateTag(`notification-${id}`, "default");
+  revalidatePath("/", "layout");
+  revalidatePath("/notifications", "page");
+  revalidatePath("/admin/content/notifications", "page");
 }
 
 export async function createNotificationAction(
@@ -45,8 +48,8 @@ export async function createNotificationAction(
 ): Promise<{ success: boolean; error?: string }> {
   await requireAuth();
   try {
-    await createNotification(toInput(data));
-    revalidateAll();
+    const id = await createNotification(toInput(data));
+    revalidateAll(id);
     return { success: true };
   } catch {
     return { success: false, error: "Failed to create notification." };
@@ -60,7 +63,7 @@ export async function updateNotificationAction(
   await requireAuth();
   try {
     await updateNotification(id, toInput(data));
-    revalidateAll();
+    revalidateAll(id);
     return { success: true };
   } catch {
     return { success: false, error: "Failed to update notification." };
@@ -71,7 +74,7 @@ export async function deleteNotificationAction(id: string): Promise<void> {
   await requireAuth();
   try {
     await deleteNotification(id);
-    revalidateAll();
+    revalidateAll(id);
   } catch (err) {
     console.error("[deleteNotificationAction]", err);
     throw new Error("Failed to delete notification");

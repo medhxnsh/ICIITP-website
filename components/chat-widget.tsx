@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect, useCallback } from "react";
+import { findAnswer } from "@/lib/chatbot-match";
 import { AnimatePresence, motion } from "framer-motion";
 import { X, Send, ChevronDown, RotateCcw } from "lucide-react";
 
@@ -34,13 +35,11 @@ interface Message {
   id: number;
   role: "bot" | "user";
   text: string;
-  streaming?: boolean;
+  followUps?: string[];
 }
 
-type HistoryEntry = { role: "user" | "model"; text: string };
-
 const GREETING =
-  "Hi! I'm **DISHA**, IC IITP's AI assistant. Ask me about our programs, facilities, how to apply, or anything about the Incubation Centre.";
+  "Hi! I'm **DISHA**, your IC IITP guide. I can help you find information about our programs, facilities, application process, and more.";
 
 const SUGGESTED = [
   "What programs are available?",
@@ -93,13 +92,12 @@ export function ChatWidget() {
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>(() => [makeGreeting()]);
   const [input, setInput] = useState("");
-  const [loading, setLoading] = useState(false);
+  const loading = false;
   const [unread, setUnread] = useState(0);
   const [showLabel, setShowLabel] = useState(false);
   const [showTooltip, setShowTooltip] = useState(false);
   const [everOpened, setEverOpened] = useState(false);
 
-  const historyRef = useRef<HistoryEntry[]>([]);
   const bottomRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -133,62 +131,20 @@ export function ChatWidget() {
   }, [open]);
 
   const send = useCallback(
-    async (text: string) => {
+    (text: string) => {
       const trimmed = text.trim();
       if (!trimmed || loading) return;
 
       const userMsg: Message = { id: msgId++, role: "user", text: trimmed };
       setMessages((prev) => [...prev, userMsg]);
       setInput("");
-      setLoading(true);
 
-      const botId = msgId++;
-      setMessages((prev) => [...prev, { id: botId, role: "bot", text: "", streaming: true }]);
-
-      try {
-        const res = await fetch("/api/chat", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ message: trimmed, history: historyRef.current }),
-        });
-
-        if (!res.ok || !res.body) throw new Error("Request failed");
-
-        const reader = res.body.getReader();
-        const decoder = new TextDecoder();
-        let full = "";
-
-        while (true) {
-          const { done, value } = await reader.read();
-          if (done) break;
-          full += decoder.decode(value, { stream: true });
-          const snapshot = full;
-          setMessages((prev) =>
-            prev.map((m) => (m.id === botId ? { ...m, text: snapshot } : m))
-          );
-        }
-
-        historyRef.current = [
-          ...historyRef.current,
-          { role: "user", text: trimmed },
-          { role: "model", text: full },
-        ];
-
-        setMessages((prev) =>
-          prev.map((m) => (m.id === botId ? { ...m, streaming: false } : m))
-        );
-        if (!open) setUnread((n) => n + 1);
-      } catch {
-        setMessages((prev) =>
-          prev.map((m) =>
-            m.id === botId
-              ? { ...m, text: "Sorry, something went wrong. Please try again.", streaming: false }
-              : m
-          )
-        );
-      } finally {
-        setLoading(false);
-      }
+      const { answer, followUps } = findAnswer(trimmed.slice(0, 500));
+      setMessages((prev) => [
+        ...prev,
+        { id: msgId++, role: "bot", text: answer, followUps: followUps ?? [] },
+      ]);
+      if (!open) setUnread((n) => n + 1);
     },
     [loading, open]
   );
@@ -200,10 +156,8 @@ export function ChatWidget() {
 
   function resetChat() {
     msgId = 1;
-    historyRef.current = [];
     setMessages([makeGreeting()]);
     setInput("");
-    setLoading(false);
     setUnread(0);
     setTimeout(() => inputRef.current?.focus(), 50);
   }
@@ -236,7 +190,7 @@ export function ChatWidget() {
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-bold leading-tight tracking-wide">DISHA</p>
-                <p className="text-xs text-white/65 truncate">IC IITP AI Assistant</p>
+                <p className="text-xs text-white/85 truncate">IC IITP AI Assistant</p>
               </div>
               <button
                 onClick={resetChat}
@@ -271,10 +225,24 @@ export function ChatWidget() {
                     style={msg.role === "user" ? { backgroundColor: "#0284c7" } : {}}
                   >
                     {msg.text ? renderMarkdown(msg.text) : <TypingDots />}
-                    {msg.streaming && msg.text && (
-                      <span className="inline-block w-0.5 h-3.5 bg-current ml-0.5 animate-pulse align-middle" />
-                    )}
                   </div>
+                  {msg.role === "bot" && msg.followUps && msg.followUps.length > 0 && (
+                    <div className="flex flex-wrap gap-1.5 max-w-[85%]">
+                      {msg.followUps.map((q) => (
+                        <button
+                          key={q}
+                          onClick={() => send(q)}
+                          disabled={loading}
+                          className="text-xs px-2.5 py-1 rounded-full disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                          style={{ border: "1px solid #7dd3fc", color: "#0369a1", backgroundColor: "#f0f9ff" }}
+                          onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.backgroundColor = "#e0f2fe"; }}
+                          onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.backgroundColor = "#f0f9ff"; }}
+                        >
+                          {q}
+                        </button>
+                      ))}
+                    </div>
+                  )}
                 </div>
               ))}
 
@@ -299,20 +267,21 @@ export function ChatWidget() {
                 </div>
               )}
 
+
               <div ref={bottomRef} />
             </div>
 
             {/* Input */}
             <form
               onSubmit={handleSubmit}
-              className="flex items-center gap-2 px-3 py-2.5 border-t shrink-0"
+              className="flex items-center gap-2 px-3 py-2.5 border-t shrink-0 focus-within:ring-2 focus-within:ring-[--color-brand-500] focus-within:ring-inset"
             style={{ borderColor: "#bae6fd" }}
             >
               <input
                 ref={inputRef}
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
-                placeholder="Ask DISHA anything…"
+                placeholder="Type your question…"
                 disabled={loading}
                 className="flex-1 text-sm bg-transparent outline-none placeholder:text-[var(--color-muted)] text-[var(--color-text)] disabled:opacity-50"
                 aria-label="Type your question"
@@ -344,7 +313,7 @@ export function ChatWidget() {
             onClick={() => setOpen(true)}
           >
             <DishaIcon size={13} className="shrink-0 opacity-80" />
-            <span>Hi! I&apos;m DISHA — ask me anything 👋</span>
+            <span>Hi! I&apos;m DISHA — your IC IITP guide 👋</span>
           </motion.div>
         )}
       </AnimatePresence>

@@ -5,18 +5,16 @@ import {
   createEvent,
   updateEvent,
   deleteEvent,
-  getAdminEvents,
-  upsertEventOverlay,
   type EventInput,
   type EventCategory,
   type EventStatus,
   type CustomField,
-  type EventOverlay,
   type EventImage,
   type ImageLayout,
+  type EventAttachment,
 } from "@/lib/cms/events";
-import { revalidatePath } from "next/cache";
-import { Timestamp } from "firebase-admin/firestore";
+// getAdminEvents removed — slug uniqueness is now enforced by the DB unique constraint
+import { revalidatePath, revalidateTag } from "next/cache";
 
 export interface EventFormData {
   slug: string;
@@ -35,36 +33,34 @@ export interface EventFormData {
   published: boolean;
   customBadge?: string;
   customFields: CustomField[];
+  attachments: EventAttachment[];
 }
 
 function toInput(data: EventFormData): EventInput {
-  return {
-    ...data,
-    closingDate: data.closingDate
-      ? Timestamp.fromDate(new Date(data.closingDate))
-      : null,
-  };
+  return { ...data };
 }
 
-function revalidateEvents() {
-  revalidatePath("/admin/content/events");
-  revalidatePath("/events");
+function revalidateEvents(slug?: string) {
+  revalidateTag("events", "default");
+  if (slug) revalidateTag(`event-${slug}`, "default");
+  revalidatePath("/", "layout");
+  revalidatePath("/events", "page");
+  revalidatePath("/admin/content/events", "page");
 }
 
 export async function createEventAction(
   data: EventFormData
 ): Promise<{ success: boolean; error?: string }> {
   await requireAuth();
-  // Check slug uniqueness
-  const existing = await getAdminEvents();
-  if (existing.some((e) => e.slug === data.slug)) {
-    return { success: false, error: `Slug "${data.slug}" is already in use.` };
-  }
   try {
     await createEvent(toInput(data));
-    revalidateEvents();
+    revalidateEvents(data.slug);
     return { success: true };
-  } catch {
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : "";
+    if (msg.includes("already in use") || msg.includes("duplicate")) {
+      return { success: false, error: `Slug "${data.slug}" is already in use.` };
+    }
     return { success: false, error: "Failed to create event. Please try again." };
   }
 }
@@ -76,8 +72,8 @@ export async function updateEventAction(
   await requireAuth();
   try {
     await updateEvent(id, toInput(data));
-    revalidateEvents();
-    revalidatePath(`/events/${data.slug}`);
+    revalidateEvents(data.slug);
+    revalidatePath(`/events/${data.slug}`, "page");
     return { success: true };
   } catch {
     return { success: false, error: "Failed to update event. Please try again." };
@@ -95,19 +91,3 @@ export async function deleteEventAction(id: string): Promise<void> {
   }
 }
 
-export type EventOverlayFormData = Omit<EventOverlay, "slug" | "updatedAt">;
-
-export async function saveEventOverlayAction(
-  slug: string,
-  data: EventOverlayFormData
-): Promise<{ success: boolean; error?: string }> {
-  await requireAuth();
-  try {
-    await upsertEventOverlay(slug, data);
-    revalidatePath("/admin/content/events");
-    revalidatePath(`/events/${slug}`);
-    return { success: true };
-  } catch {
-    return { success: false, error: "Failed to save. Please try again." };
-  }
-}

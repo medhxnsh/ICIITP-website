@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
 import { NextIntlClientProvider, hasLocale } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
@@ -8,13 +7,6 @@ import { SkipLink } from "@/components/a11y/skip-link";
 import { Nav } from "@/components/nav";
 import { Footer } from "@/components/footer";
 import { ChatWidget } from "@/components/chat-widget";
-import "../globals.css";
-
-const inter = Inter({
-  subsets: ["latin"],
-  display: "swap",
-  variable: "--font-inter",
-});
 
 
 interface LocaleLayoutProps {
@@ -72,18 +64,14 @@ export default async function LocaleLayout({
   setRequestLocale(locale);
 
   return (
-    <html lang={locale} className={inter.variable} data-scroll-behavior="smooth">
-      <body>
-        <NextIntlClientProvider>
-          <SkipLink />
-          <Nav />
-          <main id="main-content" tabIndex={-1}>
-            {children}
-          </main>
-          <Footer />
-          <ChatWidget />
-        </NextIntlClientProvider>
-      </body>
-    </html>
+    <NextIntlClientProvider>
+      <SkipLink />
+      <Nav />
+      <main id="main-content" tabIndex={-1} className="flex flex-col min-h-screen">
+        {children}
+      </main>
+      <Footer />
+      <ChatWidget />
+    </NextIntlClientProvider>
   );
 }

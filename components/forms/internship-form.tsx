@@ -86,7 +86,7 @@ export function InternshipForm({ locale = "en" }: Props) {
       </Field>
 
       <SubmitButton label="Apply for internship" pending={pending} />
-      <p className="text-xs mt-3" style={{ color: "#7a8e6a" }}>
+      <p className="text-xs mt-3" style={{ color: "var(--color-text-secondary)" }}>
         Shortlisted candidates will be contacted by email for an interview.
       </p>
     </form>

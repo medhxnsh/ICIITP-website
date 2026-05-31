@@ -2,7 +2,7 @@
 
 import { requireAuth } from "@/lib/auth";
 import { upsertPageSection, type HomeStat } from "@/lib/cms/page-sections";
-import { revalidatePath } from "next/cache";
+import { revalidateTag } from "next/cache";
 
 // ── Home ──────────────────────────────────────────────────────────────────────
 
@@ -25,7 +25,7 @@ export async function saveHomeSectionAction(formData: FormData) {
     stats,
   });
 
-  revalidatePath("/");
+  revalidateTag("page-section-home", "default");
   return { success: true };
 }
 
@@ -35,14 +35,17 @@ export async function saveContactSectionAction(formData: FormData) {
   await requireAuth();
 
   await upsertPageSection("contact", {
-    address:        (formData.get("address")        as string) ?? "",
-    phone:          (formData.get("phone")          as string) ?? "",
-    email:          (formData.get("email")          as string) ?? "",
-    hours:          (formData.get("hours")          as string) ?? "",
-    maps_embed_url: (formData.get("maps_embed_url") as string) ?? "",
+    address:          (formData.get("address")          as string) ?? "",
+    enquiries_name:   (formData.get("enquiries_name")   as string) ?? "",
+    enquiries_phone:  (formData.get("enquiries_phone")  as string) ?? "",
+    incubation_name:  (formData.get("incubation_name")  as string) ?? "",
+    incubation_phone: (formData.get("incubation_phone") as string) ?? "",
+    email:            (formData.get("email")            as string) ?? "",
+    hours:            (formData.get("hours")            as string) ?? "",
+    maps_embed_url:   (formData.get("maps_embed_url")   as string) ?? "",
   });
 
-  revalidatePath("/contact");
+  revalidateTag("page-section-contact", "default");
   return { success: true };
 }
 
@@ -60,6 +63,6 @@ export async function saveAboutSectionAction(formData: FormData) {
     ceremony_overlay_body:   (formData.get("ceremony_overlay_body")   as string) ?? "",
   });
 
-  revalidatePath("/about");
+  revalidateTag("page-section-about", "default");
   return { success: true };
 }

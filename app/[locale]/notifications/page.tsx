@@ -1,25 +1,23 @@
 import type { Metadata } from "next";
 import { setRequestLocale } from "next-intl/server";
-import { getAllNotifications, isNotificationActive } from "@/lib/content";
-import { getAllWpNotifications } from "@/lib/cms/wp-notifications";
 import { getPublishedNotifications } from "@/lib/cms/notifications";
 import { Link } from "@/i18n/navigation";
 import { Breadcrumb } from "@/components/breadcrumb";
 import { Bell, ArrowRight } from "lucide-react";
 import { tsToMs, fmtDate } from "@/lib/format";
 import { autoDateBadge, badgeStyle } from "@/lib/badge-utils";
+import { Reveal } from "@/components/reveal";
 
 interface Props { params: Promise<{ locale: string }> }
 
-export const revalidate = 60; // ISR: re-fetch at most once per minute
+export const revalidate = 60;
 
 export const metadata: Metadata = {
   title: "Notifications",
   description: "Current notifications, career openings, calls for proposals, and tender notices from IC IITP.",
 };
 
-/** Builds a "DD MMM YYYY – DD MMM YYYY" or "Deadline: …" string from CMS timestamps. */
-function buildCmsDateStr(validFrom: unknown, deadline: unknown): string {
+function buildDateStr(validFrom: unknown, deadline: unknown): string {
   const from = tsToMs(validFrom) ? fmtDate(validFrom) : "";
   const dl = tsToMs(deadline) ? fmtDate(deadline) : "";
   if (from && dl) return `${from} – ${dl}`;
@@ -28,8 +26,7 @@ function buildCmsDateStr(validFrom: unknown, deadline: unknown): string {
   return "";
 }
 
-/** Active = published, validFrom (if set) reached, deadline (if set) not yet passed. */
-function isCmsActive(deadline: unknown, validFrom: unknown): boolean {
+function isActive(deadline: unknown, validFrom: unknown): boolean {
   const now = Date.now();
   const dl = tsToMs(deadline);
   const vf = tsToMs(validFrom);
@@ -38,136 +35,98 @@ function isCmsActive(deadline: unknown, validFrom: unknown): boolean {
   return true;
 }
 
-type AnyNotif =
-  | { kind: "static"; n: import("@/lib/content").Notification; sortMs: number }
-  | { kind: "cms"; n: import("@/lib/cms/notifications").CmsNotificationDoc | import("@/lib/cms/wp-notifications").WpNotificationDoc; sortMs: number };
-
-const STATIC_HREFS: Record<string, string> = {
-  careers: "/notifications/careers",
-  "call-for-proposals": "/notifications/call-for-proposals",
-  "niq-tender": "/notifications/niq-tender",
-};
-
-function staticHref(slug: string): string {
-  // Only known static slugs route to their dedicated pages — unknown slugs
-  // would collide with the CMS `[id]` dynamic route and 404.
-  return STATIC_HREFS[slug] ?? `/notifications/${slug}`;
-}
-
 export default async function NotificationsPage({ params }: Props) {
   const { locale } = await params;
   setRequestLocale(locale);
 
-  const [staticNotifs, cmsNotifs] = await Promise.all([
-    Promise.resolve(getAllNotifications(locale)),
-    getAllWpNotifications().catch(() => getPublishedNotifications().catch(() => [])),
-  ]);
-
-  const all: AnyNotif[] = [
-    ...cmsNotifs.map((n) => ({ kind: "cms" as const, n, sortMs: tsToMs((n as import("@/lib/cms/notifications").CmsNotificationDoc).createdAt ?? n.validFrom) })),
-    ...staticNotifs.map((n) => ({
-      kind: "static" as const,
-      n,
-      sortMs: new Date(n.validFrom).getTime() || 0,
-    })),
-  ];
+  const all = await getPublishedNotifications().catch(() => []);
 
   const active = all
-    .filter((item) =>
-      item.kind === "cms"
-        ? isCmsActive(item.n.deadline, item.n.validFrom)
-        : isNotificationActive(item.n)
-    )
-    .sort((a, b) => b.sortMs - a.sortMs);
+    .filter((n) => isActive(n.deadline, n.validFrom))
+    .sort((a, b) => tsToMs(b.createdAt) - tsToMs(a.createdAt));
 
   const archived = all
-    .filter((item) =>
-      item.kind === "cms"
-        ? !isCmsActive(item.n.deadline, item.n.validFrom)
-        : !isNotificationActive(item.n)
-    )
-    .sort((a, b) => b.sortMs - a.sortMs);
+    .filter((n) => !isActive(n.deadline, n.validFrom))
+    .sort((a, b) => tsToMs(b.createdAt) - tsToMs(a.createdAt));
 
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-      <Breadcrumb items={[{ label: "Home", href: "/" }, { label: "Notifications" }]} />
+    <div className="min-h-screen" style={{ backgroundColor: "var(--color-surface)" }}>
+      {/* Hero */}
+      <div className="relative overflow-hidden" style={{ background: "linear-gradient(160deg, var(--color-hero-from) 0%, var(--color-hero-via) 60%, var(--color-hero-to) 100%)" }}>
+        <div className="absolute inset-0 pointer-events-none" aria-hidden="true"
+          style={{ backgroundImage: "radial-gradient(circle, #ffffff07 1px, transparent 1px)", backgroundSize: "24px 24px" }} />
+        <div className="absolute -top-24 -right-24 w-96 h-96 rounded-full pointer-events-none" aria-hidden="true"
+          style={{ background: "radial-gradient(circle, #f7942020 0%, transparent 65%)" }} />
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-20 relative z-10">
+          <Breadcrumb items={[{ label: "Home", href: "/" }, { label: "Notifications" }]} variant="light" />
+          <Reveal>
+            <p className="text-xs font-semibold uppercase tracking-widest mb-4 text-orange-200">
+              <Bell className="w-3.5 h-3.5 inline mr-1.5 -mt-0.5" aria-hidden="true" />
+              From IC IITP
+            </p>
+            <h1 className="text-2xl sm:text-4xl lg:text-6xl font-black text-white leading-tight mb-4">
+              Notifications
+            </h1>
+            <p className="text-white/80 text-lg max-w-lg">
+              Career openings, calls for proposals, and procurement notices from IC IITP.
+            </p>
+          </Reveal>
+        </div>
+      </div>
 
-      <header className="mb-10">
-        <h1 className="text-4xl font-black text-[--color-brand-800] mb-4">Notifications</h1>
-        <p className="text-lg text-[--color-text-subtle] max-w-xl">
-          Career openings, calls for proposals, and procurement notices from IC IITP.
-        </p>
-      </header>
-
-      <section aria-labelledby="active-notifs" className="mb-12">
-        <h2 id="active-notifs" className="text-xl font-bold text-[--color-text] mb-5">Active Notices</h2>
-        {active.length === 0 ? (
-          <p className="text-sm text-[--color-muted] py-6 text-center rounded-[--radius-xl] border border-[--color-border]">
-            No active notices at this time.
-          </p>
-        ) : (
-          <div className="space-y-3">
-            {active.map((item) =>
-              item.kind === "cms" ? (
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <section aria-labelledby="active-notifs" className="mb-12">
+          <h2 id="active-notifs" className="text-xl font-bold text-[--color-text] mb-5">Active Notices</h2>
+          {active.length === 0 ? (
+            <p className="text-sm text-[--color-muted] py-6 text-center rounded-[--radius-xl] border border-[--color-border]">
+              No active notices at this time.
+            </p>
+          ) : (
+            <div className="space-y-3">
+              {active.map((n) => (
                 <NotifCard
-                  key={`cms-${item.n.id}`}
-                  href={`/notifications/${item.n.id}`}
-                  title={item.n.title}
-                  subtitle={item.n.body}
-                  badge={item.n.category}
+                  key={n.id}
+                  href={`/notifications/${n.id}`}
+                  title={n.title}
+                  subtitle={n.summary || n.body}
+                  badge={n.category}
                   status="active"
-                  dateStr={buildCmsDateStr(item.n.validFrom, item.n.deadline)}
-                  customBadge={item.n.customBadge}
-                  deadline={item.n.deadline}
-                  validFrom={item.n.validFrom}
+                  dateStr={buildDateStr(n.validFrom, n.deadline)}
+                  customBadge={n.customBadge}
+                  deadline={n.deadline}
+                  validFrom={n.validFrom}
                 />
-              ) : (
-                <NotifCard
-                  key={`s-${item.n.slug}`}
-                  href={staticHref(item.n.slug)}
-                  title={item.n.title}
-                  subtitle={item.n.summary}
-                  status="active"
-                  dateStr={`${fmtDate(item.n.validFrom)} – ${fmtDate(item.n.validTo)}`}
-                />
-              )
-            )}
-          </div>
-        )}
-      </section>
+              ))}
+            </div>
+          )}
+        </section>
 
-      {archived.length > 0 && (
         <section aria-labelledby="archived-notifs">
           <h2 id="archived-notifs" className="text-xl font-bold text-[--color-text] mb-5">Archive</h2>
-          <div className="space-y-3">
-            {archived.map((item) =>
-              item.kind === "cms" ? (
+          {archived.length === 0 ? (
+            <p className="text-sm text-[--color-muted] py-6 text-center rounded-[--radius-xl] border border-[--color-border]">
+              No archived notices.
+            </p>
+          ) : (
+            <div className="space-y-3">
+              {archived.map((n) => (
                 <NotifCard
-                  key={`cms-arch-${item.n.id}`}
-                  href={`/notifications/${item.n.id}`}
-                  title={item.n.title}
-                  subtitle={item.n.body}
-                  badge={item.n.category}
+                  key={n.id}
+                  href={`/notifications/${n.id}`}
+                  title={n.title}
+                  subtitle={n.summary || n.body}
+                  badge={n.category}
                   status="completed"
-                  dateStr={buildCmsDateStr(item.n.validFrom, item.n.deadline)}
-                  customBadge={item.n.customBadge}
-                  deadline={item.n.deadline}
-                  validFrom={item.n.validFrom}
+                  dateStr={buildDateStr(n.validFrom, n.deadline)}
+                  customBadge={n.customBadge}
+                  deadline={n.deadline}
+                  validFrom={n.validFrom}
                 />
-              ) : (
-                <NotifCard
-                  key={`s-arch-${item.n.slug}`}
-                  href={staticHref(item.n.slug)}
-                  title={item.n.title}
-                  subtitle={item.n.summary}
-                  status="completed"
-                  dateStr={`${fmtDate(item.n.validFrom)} – ${fmtDate(item.n.validTo)}`}
-                />
-              )
-            )}
-          </div>
+              ))}
+            </div>
+          )}
         </section>
-      )}
+      </div>
     </div>
   );
 }

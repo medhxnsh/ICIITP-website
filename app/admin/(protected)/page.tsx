@@ -1,5 +1,4 @@
 import { requireAuth } from "@/lib/auth";
-import { getAllPrograms, getAllEvents, getAllNotifications } from "@/lib/content";
 import { getAdminEvents } from "@/lib/cms/events";
 import { getAllAdminNotifications } from "@/lib/cms/notifications";
 import { getAllAdminDownloads } from "@/lib/cms/downloads";
@@ -8,8 +7,8 @@ import { getSubmissions } from "@/lib/submissions";
 import { tsToMs, fmtDate, timeAgo } from "@/lib/format";
 import {
   BookOpen, Calendar, Bell, Download,
-  ArrowRight, ClipboardList, Upload, Link2,
-  Map, FileEdit, Plus, AlertCircle, Clock,
+  ArrowRight, ClipboardList, Upload,
+  FileEdit, Plus, AlertCircle, Clock,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -32,10 +31,6 @@ export default async function AdminDashboard() {
     getAllAdminDownloads().catch(() => []),
     getAllCmsPrograms().catch(() => []),
   ]);
-
-  const staticPrograms = getAllPrograms("en");
-  const staticEvents = getAllEvents("en");
-  const staticNotifs = getAllNotifications("en");
 
   // Applications breakdown
   const pendingByType = submissions.reduce<Record<string, number>>((acc, s) => {
@@ -73,12 +68,6 @@ export default async function AdminDashboard() {
     const dl = tsToMs(n.deadline);
     const vf = tsToMs(n.validFrom);
     return n.published && (!dl || dl > now) && (!vf || vf <= now);
-  }).length + staticNotifs.filter((n) => {
-    const vf = new Date(n.validFrom).getTime();
-    const vt = new Date(n.validTo).getTime();
-    // Treat malformed dates as not-active rather than always-active (NaN comparisons are false).
-    if (Number.isNaN(vf) || Number.isNaN(vt)) return false;
-    return vf <= now && vt >= now;
   }).length;
 
   const lastDownloadMs = cmsDownloads.reduce((mx, d) => Math.max(mx, tsToMs(d.updatedAt)), 0);
@@ -121,15 +110,15 @@ export default async function AdminDashboard() {
       label: "Programs",
       icon: <BookOpen className="w-5 h-5" />,
       href: "/admin/content/programs",
-      total: staticPrograms.length,
-      sub1: `${cmsPrograms.length} CMS overrides`,
+      total: cmsPrograms.length,
+      sub1: `${cmsPrograms.filter((p) => p.published).length} published`,
       sub2: lastProgramMs ? `Last edit ${timeAgo(lastProgramMs)}` : "No CMS edits yet",
     },
     {
       label: "Events",
       icon: <Calendar className="w-5 h-5" />,
       href: "/admin/content/events",
-      total: staticEvents.length + cmsEvents.length,
+      total: cmsEvents.length,
       sub1: `${upcomingEvents} upcoming`,
       sub2: lastEventMs ? `Last edit ${timeAgo(lastEventMs)}` : "No edits yet",
     },
@@ -137,7 +126,7 @@ export default async function AdminDashboard() {
       label: "Notifications",
       icon: <Bell className="w-5 h-5" />,
       href: "/admin/content/notifications",
-      total: staticNotifs.length + cmsNotifs.length,
+      total: cmsNotifs.length,
       sub1: `${activeNotifs} active`,
       sub2: lastNotifMs ? `Last edit ${timeAgo(lastNotifMs)}` : "No edits yet",
     },
@@ -152,13 +141,13 @@ export default async function AdminDashboard() {
   ];
 
   return (
-    <main className="p-8 max-w-5xl">
+    <main className="p-8">
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-2xl font-black mb-1" style={{ color: "#1c2e06" }}>
+        <h1 className="text-2xl font-black mb-1" style={{ color: "var(--color-brand-950)" }}>
           Welcome back, {user.name.split(" ")[0]}
         </h1>
-        <p className="text-sm" style={{ color: "#5a6644" }}>
+        <p className="text-sm" style={{ color: "var(--color-text-body)" }}>
           {new Date().toLocaleDateString("en-IN", { weekday: "long", day: "numeric", month: "long", year: "numeric" })}
         </p>
       </div>
@@ -169,26 +158,26 @@ export default async function AdminDashboard() {
           href="/admin/applications"
           className="group flex items-start gap-5 rounded-xl p-5 transition-shadow hover:shadow-sm"
           style={{
-            backgroundColor: totalPending > 0 ? "#fff7ed" : "#f0f7e6",
-            border: `1px solid ${totalPending > 0 ? "#fed7aa" : "#d4e6c4"}`,
+            backgroundColor: totalPending > 0 ? "#fff7ed" : "var(--color-surface-tint)",
+            border: `1px solid ${totalPending > 0 ? "#fed7aa" : "var(--color-input-border)"}`,
           }}
         >
           <span
             className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0"
-            style={{ backgroundColor: totalPending > 0 ? "#f79420" : "#3a5214", color: "white" }}
+            style={{ backgroundColor: totalPending > 0 ? "var(--color-accent)" : "var(--color-brand-800)", color: "white" }}
           >
             <ClipboardList className="w-5 h-5" />
           </span>
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-3 flex-wrap mb-1">
-              <p className="text-sm font-bold" style={{ color: "#1c2e06" }}>Applications</p>
+              <p className="text-sm font-bold" style={{ color: "var(--color-brand-950)" }}>Applications</p>
               {totalPending > 0 && (
-                <span className="flex items-center gap-1 text-xs font-bold px-2.5 py-0.5 rounded-full" style={{ backgroundColor: "#f79420", color: "white" }}>
+                <span className="flex items-center gap-1 text-xs font-bold px-2.5 py-0.5 rounded-full" style={{ backgroundColor: "var(--color-accent)", color: "white" }}>
                   <AlertCircle className="w-3 h-3" /> {totalPending} pending
                 </span>
               )}
             </div>
-            <p className="text-xs mb-2" style={{ color: "#7a8e6a" }}>
+            <p className="text-xs mb-2" style={{ color: "var(--color-text-secondary)" }}>
               {submissions.length} total · Last received: {fmtDate(lastSubmissionMs)}
             </p>
             {totalPending > 0 && (
@@ -201,34 +190,34 @@ export default async function AdminDashboard() {
               </div>
             )}
             {totalPending === 0 && (
-              <p className="text-xs font-medium" style={{ color: "#3a5214" }}>All caught up — no pending applications</p>
+              <p className="text-xs font-medium" style={{ color: "var(--color-brand-800)" }}>All caught up — no pending applications</p>
             )}
           </div>
-          <ArrowRight className="w-4 h-4 shrink-0 mt-1 opacity-0 group-hover:opacity-100 transition-opacity" style={{ color: "#f79420" }} />
+          <ArrowRight className="w-4 h-4 shrink-0 mt-1 opacity-0 group-hover:opacity-100 transition-opacity" style={{ color: "var(--color-accent)" }} />
         </Link>
       </section>
 
       {/* Content stats */}
       <section className="mb-8">
-        <h2 className="text-xs font-black uppercase tracking-widest mb-4" style={{ color: "#5a7c20" }}>Content overview</h2>
+        <h2 className="text-xs font-black uppercase tracking-widest mb-4" style={{ color: "var(--color-brand-600)" }}>Content overview</h2>
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {contentCards.map(({ label, icon, href, total, sub1, sub2 }) => (
             <Link
               key={label}
               href={href}
               className="group bg-white rounded-xl border p-5 hover:shadow-sm transition-shadow flex flex-col gap-3"
-              style={{ borderColor: "#e8f0e0" }}
+              style={{ borderColor: "var(--color-border-subtle)" }}
             >
               <div className="flex items-start justify-between">
                 <div>
-                  <p className="text-3xl font-black leading-none mb-1" style={{ color: "#3a5214" }}>{total}</p>
-                  <p className="text-sm font-semibold" style={{ color: "#1c2e06" }}>{label}</p>
+                  <p className="text-3xl font-black leading-none mb-1" style={{ color: "var(--color-brand-800)" }}>{total}</p>
+                  <p className="text-sm font-semibold" style={{ color: "var(--color-brand-950)" }}>{label}</p>
                 </div>
-                <span style={{ color: "#3a5214" }} aria-hidden="true">{icon}</span>
+                <span style={{ color: "var(--color-brand-800)" }} aria-hidden="true">{icon}</span>
               </div>
-              <div className="space-y-1 pt-1 border-t" style={{ borderColor: "#f0f7e6" }}>
-                <p className="text-[11px] font-semibold" style={{ color: "#5a6644" }}>{sub1}</p>
-                <p className="text-[11px] flex items-center gap-1" style={{ color: "#aab89e" }}>
+              <div className="space-y-1 pt-1 border-t" style={{ borderColor: "var(--color-surface-tint)" }}>
+                <p className="text-[11px] font-semibold" style={{ color: "var(--color-text-body)" }}>{sub1}</p>
+                <p className="text-[11px] flex items-center gap-1" style={{ color: "var(--color-placeholder)" }}>
                   <Clock className="w-3 h-3 shrink-0" /> {sub2}
                 </p>
               </div>
@@ -239,13 +228,13 @@ export default async function AdminDashboard() {
 
       {/* Applications status chart */}
       <section className="mb-8">
-        <h2 className="text-xs font-black uppercase tracking-widest mb-4" style={{ color: "#5a7c20" }}>Applications overview</h2>
-        <div className="bg-white rounded-xl border p-6" style={{ borderColor: "#e8f0e0" }}>
+        <h2 className="text-xs font-black uppercase tracking-widest mb-4" style={{ color: "var(--color-brand-600)" }}>Applications overview</h2>
+        <div className="bg-white rounded-xl border p-6" style={{ borderColor: "var(--color-border-subtle)" }}>
           <div className="grid sm:grid-cols-2 gap-8">
 
             {/* Status breakdown */}
             <div>
-              <p className="text-xs font-semibold uppercase tracking-wide mb-4" style={{ color: "#5a6644" }}>By status · {totalSubmissions} total</p>
+              <p className="text-xs font-semibold uppercase tracking-wide mb-4" style={{ color: "var(--color-text-body)" }}>By status · {totalSubmissions} total</p>
               <div className="space-y-3">
                 {STATUS_META.map(({ key, label, color, bg }) => {
                   const count = statusCounts[key] ?? 0;
@@ -256,7 +245,7 @@ export default async function AdminDashboard() {
                         <span className="text-xs font-semibold" style={{ color }}>{label}</span>
                         <span className="text-xs font-bold" style={{ color }}>{count}</span>
                       </div>
-                      <div className="w-full rounded-full h-2.5" style={{ backgroundColor: "#f0f7e6" }}>
+                      <div className="w-full rounded-full h-2.5" style={{ backgroundColor: "var(--color-surface-tint)" }}>
                         <div
                           className="h-2.5 rounded-full transition-all"
                           style={{ width: `${pct}%`, backgroundColor: color, minWidth: count > 0 ? "6px" : "0" }}
@@ -270,29 +259,29 @@ export default async function AdminDashboard() {
 
             {/* Type breakdown */}
             <div>
-              <p className="text-xs font-semibold uppercase tracking-wide mb-4" style={{ color: "#5a6644" }}>By type</p>
+              <p className="text-xs font-semibold uppercase tracking-wide mb-4" style={{ color: "var(--color-text-body)" }}>By type</p>
               <div className="space-y-3">
                 {Object.entries(typeCounts).sort((a, b) => b[1] - a[1]).map(([type, count]) => {
                   const pct = totalSubmissions > 0 ? Math.round((count / totalSubmissions) * 100) : 0;
                   return (
                     <div key={type}>
                       <div className="flex items-center justify-between mb-1">
-                        <Link href={`/admin/applications?type=${type}`} className="text-xs font-semibold hover:underline" style={{ color: "#3a5214" }}>
+                        <Link href={`/admin/applications?type=${type}`} className="text-xs font-semibold hover:underline" style={{ color: "var(--color-brand-800)" }}>
                           {type}
                         </Link>
-                        <span className="text-xs font-bold" style={{ color: "#1c2e06" }}>{count}</span>
+                        <span className="text-xs font-bold" style={{ color: "var(--color-brand-950)" }}>{count}</span>
                       </div>
-                      <div className="w-full rounded-full h-2.5" style={{ backgroundColor: "#f0f7e6" }}>
+                      <div className="w-full rounded-full h-2.5" style={{ backgroundColor: "var(--color-surface-tint)" }}>
                         <div
                           className="h-2.5 rounded-full"
-                          style={{ width: `${pct}%`, backgroundColor: "#3a5214", minWidth: count > 0 ? "6px" : "0" }}
+                          style={{ width: `${pct}%`, backgroundColor: "var(--color-brand-800)", minWidth: count > 0 ? "6px" : "0" }}
                         />
                       </div>
                     </div>
                   );
                 })}
                 {Object.keys(typeCounts).length === 0 && (
-                  <p className="text-xs py-4 text-center" style={{ color: "#aab89e" }}>No submissions yet</p>
+                  <p className="text-xs py-4 text-center" style={{ color: "var(--color-placeholder)" }}>No submissions yet</p>
                 )}
               </div>
             </div>
@@ -305,20 +294,20 @@ export default async function AdminDashboard() {
       <div className="grid lg:grid-cols-3 gap-6 mb-8">
         {/* Recent activity */}
         <section className="lg:col-span-2">
-          <h2 className="text-xs font-black uppercase tracking-widest mb-4" style={{ color: "#5a7c20" }}>Recent activity</h2>
-          <div className="bg-white rounded-xl border overflow-hidden" style={{ borderColor: "#e8f0e0" }}>
+          <h2 className="text-xs font-black uppercase tracking-widest mb-4" style={{ color: "var(--color-brand-600)" }}>Recent activity</h2>
+          <div className="bg-white rounded-xl border overflow-hidden" style={{ borderColor: "var(--color-border-subtle)" }}>
             {activity.length === 0 ? (
-              <p className="text-sm py-8 text-center" style={{ color: "#7a8e6a" }}>No activity yet.</p>
+              <p className="text-sm py-8 text-center" style={{ color: "var(--color-text-secondary)" }}>No activity yet.</p>
             ) : (
               <ul>
                 {activity.map((item, i) => (
                   <li key={i} style={{ borderBottom: i < activity.length - 1 ? "1px solid #f0f7e6" : "none" }}>
                     <Link href={item.href} className="flex items-start gap-3 px-4 py-3 hover:bg-[#fafdf7] transition-colors">
                       <div className="flex-1 min-w-0">
-                        <p className="text-xs font-semibold truncate" style={{ color: "#1c2e06" }}>{item.label}</p>
-                        <p className="text-[11px] mt-0.5" style={{ color: "#7a8e6a" }}>{item.what}</p>
+                        <p className="text-xs font-semibold truncate" style={{ color: "var(--color-brand-950)" }}>{item.label}</p>
+                        <p className="text-[11px] mt-0.5" style={{ color: "var(--color-text-secondary)" }}>{item.what}</p>
                       </div>
-                      <span className="text-[11px] shrink-0 mt-0.5" style={{ color: "#aab89e" }}>{timeAgo(item.ms)}</span>
+                      <span className="text-[11px] shrink-0 mt-0.5" style={{ color: "var(--color-placeholder)" }}>{timeAgo(item.ms)}</span>
                     </Link>
                   </li>
                 ))}
@@ -329,27 +318,25 @@ export default async function AdminDashboard() {
 
         {/* Quick actions */}
         <section>
-          <h2 className="text-xs font-black uppercase tracking-widest mb-4" style={{ color: "#5a7c20" }}>Quick actions</h2>
+          <h2 className="text-xs font-black uppercase tracking-widest mb-4" style={{ color: "var(--color-brand-600)" }}>Quick actions</h2>
           <div className="space-y-2">
             {[
               { label: "Add notification", href: "/admin/content/notifications/new", icon: <Plus className="w-4 h-4" /> },
               { label: "Add event", href: "/admin/content/events/new", icon: <Calendar className="w-4 h-4" /> },
               { label: "Add download", href: "/admin/content/downloads/new", icon: <Upload className="w-4 h-4" /> },
               { label: "Edit pages", href: "/admin/pages", icon: <FileEdit className="w-4 h-4" /> },
-              { label: "Form links", href: "/admin/forms", icon: <Link2 className="w-4 h-4" /> },
-              { label: "Site map", href: "/admin/site-map", icon: <Map className="w-4 h-4" /> },
             ].map(({ label, href, icon }) => (
               <Link
                 key={label}
                 href={href}
                 className="group flex items-center gap-3 px-4 py-2.5 bg-white rounded-xl border hover:shadow-sm transition-shadow"
-                style={{ borderColor: "#e8f0e0" }}
+                style={{ borderColor: "var(--color-border-subtle)" }}
               >
-                <span className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0" style={{ backgroundColor: "#f0f7e6", color: "#3a5214" }}>
+                <span className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0" style={{ backgroundColor: "var(--color-surface-tint)", color: "var(--color-brand-800)" }}>
                   {icon}
                 </span>
-                <span className="text-sm font-medium flex-1" style={{ color: "#1c2e06" }}>{label}</span>
-                <ArrowRight className="w-3.5 h-3.5 opacity-0 group-hover:opacity-100 transition-opacity" style={{ color: "#f79420" }} />
+                <span className="text-sm font-medium flex-1" style={{ color: "var(--color-brand-950)" }}>{label}</span>
+                <ArrowRight className="w-3.5 h-3.5 opacity-0 group-hover:opacity-100 transition-opacity" style={{ color: "var(--color-accent)" }} />
               </Link>
             ))}
           </div>

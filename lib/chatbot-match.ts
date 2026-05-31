@@ -2,7 +2,7 @@
  * Keyword-matching engine for the DISHA chatbot.
  * Scores each FAQ by keyword overlap and returns the best-matching answer.
  */
-import { FAQS, FALLBACK, type FAQ } from "./chatbot-faqs";
+import { FAQS, FALLBACK, type FAQ } from "@/config/chatbot-faq";
 
 function normalize(text: string): string {
   return text.toLowerCase().replace(/[^a-z0-9\s₹]/g, " ").trim();

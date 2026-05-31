@@ -1,11 +1,11 @@
 import React from "react";
 import { Link } from "@/i18n/navigation";
-import type { Program } from "@/lib/content";
+import type { CmsProgramDoc } from "@/lib/cms/programs";
 import { ArrowRight } from "lucide-react";
 import { ProgramLogo } from "@/components/program-logo";
 
 const BADGE_STYLES: Record<string, React.CSSProperties> = {
-  "Flagship": { backgroundColor: "#3a5214", color: "white" },
+  "Flagship": { backgroundColor: "var(--color-brand-800)", color: "white" },
   "DST": { backgroundColor: "#1d4ed8", color: "white" },
   "DST NSTEDB": { backgroundColor: "#2563eb", color: "white" },
   "DPIIT": { backgroundColor: "#ea580c", color: "white" },
@@ -14,18 +14,18 @@ const BADGE_STYLES: Record<string, React.CSSProperties> = {
 };
 
 interface ProgramCardProps {
-  program: Program;
+  program: CmsProgramDoc;
 }
 
 export function ProgramCard({ program }: ProgramCardProps) {
-  const badgeStyle = BADGE_STYLES[program.badge] ?? { backgroundColor: "#5a7c20", color: "white" };
+  const badgeStyle = BADGE_STYLES[program.badge ?? ""] ?? { backgroundColor: "var(--color-brand-600)", color: "white" };
 
   return (
     <article className="group flex flex-col rounded-[--radius-xl] border border-[--color-border] bg-[--color-surface] shadow-[--shadow-card] hover:shadow-md hover:border-[--color-brand-300] transition-all overflow-hidden">
       <div className="p-6 flex-1">
         {/* Logo */}
         <div className="mb-3">
-          <ProgramLogo slug={program.slug} size={44} />
+          <ProgramLogo slug={program.slug} logoUrl={program.logoUrl} size={44} />
         </div>
 
         <div className="flex items-start justify-between gap-3 mb-3">

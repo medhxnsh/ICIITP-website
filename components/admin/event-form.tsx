@@ -5,9 +5,10 @@
  */
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { Upload, Check } from "lucide-react";
+import { Upload, Check, Plus, Trash2, FileDown } from "lucide-react";
+import { useToast } from "@/components/admin/toast-provider";
 import { CustomFieldBuilder } from "./custom-field-builder";
-import type { EventCategory, EventStatus, CustomField, EventImage, ImageLayout } from "@/lib/cms/events";
+import type { EventCategory, EventStatus, CustomField, EventImage, ImageLayout, EventAttachment } from "@/lib/cms/events";
 import type { EventFormData } from "@/app/admin/(protected)/content/events/actions";
 
 const CATEGORIES: EventCategory[] = ["Training", "Competition", "Conference", "Workshop", "Other"];
@@ -69,7 +70,7 @@ function MultiImageUpload({
     <div>
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-3">
         {images.map((img, i) => (
-          <div key={i} className="relative group rounded-lg overflow-hidden border" style={{ borderColor: "#d4e6c4", aspectRatio: "4/3" }}>
+          <div key={i} className="relative group rounded-lg overflow-hidden border" style={{ borderColor: "var(--color-input-border)", aspectRatio: "4/3" }}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={img.url} alt={img.alt ?? ""} className="w-full h-full object-cover" />
             <button
@@ -86,37 +87,46 @@ function MultiImageUpload({
           </div>
         ))}
         <label
-          className="flex flex-col items-center justify-center gap-1.5 rounded-lg border-2 border-dashed cursor-pointer transition-colors hover:bg-[#f5f9f0]"
-          style={{ borderColor: "#d4e6c4", aspectRatio: "4/3", minHeight: "100px" }}
+          className="flex flex-col items-center justify-center gap-1.5 rounded-lg border-2 border-dashed cursor-pointer transition-colors hover:bg-[--color-surface-tint]"
+          style={{ borderColor: "var(--color-input-border)", aspectRatio: "4/3", minHeight: "100px" }}
         >
           {uploading ? (
             <>
-              <span className="text-xs font-medium" style={{ color: "#3a5214" }}>
+              <span className="text-xs font-medium" style={{ color: "var(--color-brand-800)" }}>
                 {uploadState!.done}/{uploadState!.total} uploaded
               </span>
-              <div className="w-16 h-1.5 rounded-full mt-1 overflow-hidden" style={{ backgroundColor: "#d4e6c4" }}>
+              <div className="w-16 h-1.5 rounded-full mt-1 overflow-hidden" style={{ backgroundColor: "var(--color-input-border)" }}>
                 <div
                   className="h-full rounded-full transition-all"
-                  style={{ backgroundColor: "#3a5214", width: `${(uploadState!.done / uploadState!.total) * 100}%` }}
+                  style={{ backgroundColor: "var(--color-brand-800)", width: `${(uploadState!.done / uploadState!.total) * 100}%` }}
                 />
               </div>
             </>
           ) : (
             <>
-              <Upload className="w-5 h-5" style={{ color: "#3a5214" }} />
-              <span className="text-xs font-medium" style={{ color: "#3a5214" }}>Add images</span>
-              <span className="text-[10px]" style={{ color: "#7a8e6a" }}>Select multiple</span>
+              <Upload className="w-5 h-5" style={{ color: "var(--color-brand-800)" }} />
+              <span className="text-xs font-medium" style={{ color: "var(--color-brand-800)" }}>Add images</span>
+              <span className="text-[10px]" style={{ color: "var(--color-text-secondary)" }}>Select multiple</span>
             </>
           )}
           <input type="file" accept="image/*" multiple className="sr-only" onChange={handleFiles} disabled={uploading} />
         </label>
       </div>
-      {uploadError && <p className="text-xs mb-2" style={{ color: "#b91c1c" }}>{uploadError}</p>}
-      <p className="text-xs" style={{ color: "#7a8e6a" }}>
+      {uploadError && <p className="text-xs mb-2" style={{ color: "var(--color-danger)" }}>{uploadError}</p>}
+      <p className="text-xs" style={{ color: "var(--color-text-secondary)" }}>
         First image is used as the cover banner (cropped to 16:7) and listing thumbnail. Upload any size — images are automatically cropped to fit.
       </p>
     </div>
   );
+}
+
+async function uploadFile(file: File, pathPrefix: string): Promise<string> {
+  const fd = new FormData();
+  fd.append("file", file);
+  fd.append("path", `${pathPrefix}/${Date.now()}-${file.name}`);
+  const res = await fetch("/api/admin/upload", { method: "POST", body: fd });
+  const { url } = await res.json();
+  return url ?? "";
 }
 
 interface Props {
@@ -126,6 +136,7 @@ interface Props {
 
 export function EventForm({ event, onSave }: Props) {
   const router = useRouter();
+  const toast = useToast();
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState("");
   const [saved, setSaved] = useState(false);
@@ -150,10 +161,34 @@ export function EventForm({ event, onSave }: Props) {
   const [customBadge, setCustomBadge] = useState(event?.customBadge ?? "");
   const [published, setPublished] = useState(event?.published ?? false);
   const [customFields, setCustomFields] = useState<CustomField[]>(event?.customFields ?? []);
+  const [attachments, setAttachments] = useState<EventAttachment[]>(event?.attachments ?? []);
+  const [attachUploading, setAttachUploading] = useState(false);
 
   function handleTitleChange(v: string) {
     setTitle(v);
     if (!event) setSlug(slugify(v));
+  }
+
+  async function handleAttachUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setAttachUploading(true);
+    try {
+      const url = await uploadFile(file, `events/${slug || "draft"}/files`);
+      const ext = file.name.split(".").pop()?.toUpperCase() ?? "FILE";
+      setAttachments((prev) => [...prev, { title: file.name.replace(/\.[^.]+$/, ""), url, type: ext }]);
+    } finally {
+      setAttachUploading(false);
+      e.target.value = "";
+    }
+  }
+
+  function updateAttachment(i: number, field: keyof EventAttachment, val: string) {
+    setAttachments((prev) => prev.map((a, idx) => idx === i ? { ...a, [field]: val } : a));
+  }
+
+  function removeAttachment(i: number) {
+    setAttachments((prev) => prev.filter((_, idx) => idx !== i));
   }
 
   function handleSubmit(e: React.FormEvent) {
@@ -178,40 +213,43 @@ export function EventForm({ event, onSave }: Props) {
       customBadge: customBadge.trim() || undefined,
       published,
       customFields,
+      attachments: attachments.filter((a) => a.url.trim()),
     };
     startTransition(async () => {
       const result = await onSave(data);
       if (result.success) {
         setSaved(true);
-        setTimeout(() => { router.push("/admin/content/events"); router.refresh(); }, 800);
+        toast.success("Event saved", published ? "Live on the website." : "Saved as draft.");
+        setTimeout(() => { router.push("/admin/content/events"); router.refresh(); }, 1000);
       } else {
         setError(result.error ?? "Something went wrong.");
+        toast.error("Save failed", result.error ?? "Something went wrong.");
       }
     });
   }
 
-  const inputCls = "w-full text-sm rounded-lg px-3 py-2 outline-none";
-  const inputStyle = { border: "1px solid #d4e6c4", color: "#1c2e06" };
+  const inputCls = "w-full text-sm rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-[--color-brand-500]";
+  const inputStyle = { border: "1px solid var(--color-input-border)", color: "var(--color-brand-950)" };
   const labelCls = "block text-xs font-semibold mb-1";
-  const labelStyle = { color: "#5a6644" };
+  const labelStyle = { color: "var(--color-text-body)" };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-8 max-w-3xl">
       {error && (
-        <div className="text-sm px-4 py-3 rounded-xl" style={{ backgroundColor: "#fef2f2", color: "#b91c1c", border: "1px solid #fecaca" }}>
+        <div className="text-sm px-4 py-3 rounded-xl" style={{ backgroundColor: "var(--color-danger-bg)", color: "var(--color-danger)", border: "1px solid #fecaca" }}>
           {error}
         </div>
       )}
 
       {/* Basic info */}
       <section>
-        <h2 className="text-sm font-black uppercase tracking-wider mb-4" style={{ color: "#3a5214" }}>
+        <h2 className="text-sm font-black uppercase tracking-wider mb-4" style={{ color: "var(--color-brand-800)" }}>
           Basic Information
         </h2>
         <div className="space-y-4">
           <div>
             <label className={labelCls} style={labelStyle}>
-              Title <span style={{ color: "#b91c1c" }}>*</span>
+              Title <span style={{ color: "var(--color-danger)" }}>*</span>
             </label>
             <input
               value={title}
@@ -225,10 +263,10 @@ export function EventForm({ event, onSave }: Props) {
           <div className="grid sm:grid-cols-2 gap-4">
             <div>
               <label className={labelCls} style={labelStyle}>
-                Slug (URL) <span style={{ color: "#b91c1c" }}>*</span>
+                Slug (URL) <span style={{ color: "var(--color-danger)" }}>*</span>
               </label>
               <div className="flex items-center gap-1">
-                <span className="text-xs" style={{ color: "#aab89e" }}>/events/</span>
+                <span className="text-xs" style={{ color: "var(--color-placeholder)" }}>/events/</span>
                 <input
                   value={slug}
                   onChange={(e) => setSlug(slugify(e.target.value))}
@@ -277,7 +315,7 @@ export function EventForm({ event, onSave }: Props) {
 
       {/* Status & settings */}
       <section>
-        <h2 className="text-sm font-black uppercase tracking-wider mb-4" style={{ color: "#3a5214" }}>
+        <h2 className="text-sm font-black uppercase tracking-wider mb-4" style={{ color: "var(--color-brand-800)" }}>
           Status &amp; Settings
         </h2>
         <div className="grid sm:grid-cols-2 gap-4">
@@ -304,12 +342,12 @@ export function EventForm({ event, onSave }: Props) {
         </div>
         <div className="mt-4 flex flex-col sm:flex-row gap-4">
           <label className="flex items-center gap-2.5 cursor-pointer">
-            <input type="checkbox" checked={autoClose} onChange={(e) => setAutoClose(e.target.checked)} className="w-4 h-4 rounded" style={{ accentColor: "#3a5214" }} />
-            <span className="text-sm" style={{ color: "#1c2e06" }}>Auto-close when closing date passes</span>
+            <input type="checkbox" checked={autoClose} onChange={(e) => setAutoClose(e.target.checked)} className="w-4 h-4 rounded" style={{ accentColor: "var(--color-brand-800)" }} />
+            <span className="text-sm" style={{ color: "var(--color-brand-950)" }}>Auto-close when closing date passes</span>
           </label>
           <div className="flex-1">
             <label className={labelCls} style={labelStyle}>
-              Custom badge <span className="font-normal" style={{ color: "#aab89e" }}>(e.g. "Results Announced", "Interview Stage" — shown alongside auto status)</span>
+              Custom badge <span className="font-normal" style={{ color: "var(--color-placeholder)" }}>(e.g. "Results Announced", "Interview Stage" — shown alongside auto status)</span>
             </label>
             <input
               value={customBadge}
@@ -324,10 +362,10 @@ export function EventForm({ event, onSave }: Props) {
 
       {/* Images */}
       <section>
-        <h2 className="text-sm font-black uppercase tracking-wider mb-4" style={{ color: "#3a5214" }}>Images</h2>
+        <h2 className="text-sm font-black uppercase tracking-wider mb-4" style={{ color: "var(--color-brand-800)" }}>Images</h2>
 
         <div className="mb-5">
-          <p className="text-xs font-semibold mb-2" style={{ color: "#5a6644" }}>Display layout</p>
+          <p className="text-xs font-semibold mb-2" style={{ color: "var(--color-text-body)" }}>Display layout</p>
           <div className="flex flex-wrap gap-2">
             {LAYOUT_OPTIONS.map((opt) => (
               <button
@@ -337,8 +375,8 @@ export function EventForm({ event, onSave }: Props) {
                 className="flex flex-col items-start px-3 py-2 rounded-lg border text-left transition-colors"
                 style={
                   imageLayout === opt.value
-                    ? { borderColor: "#3a5214", backgroundColor: "#f0f7e6", color: "#1c2e06" }
-                    : { borderColor: "#d4e6c4", color: "#5a6644" }
+                    ? { borderColor: "var(--color-brand-800)", backgroundColor: "var(--color-surface-tint)", color: "var(--color-brand-950)" }
+                    : { borderColor: "var(--color-input-border)", color: "var(--color-text-body)" }
                 }
               >
                 <span className="text-sm font-semibold">{opt.label}</span>
@@ -358,13 +396,86 @@ export function EventForm({ event, onSave }: Props) {
 
       {/* Custom fields */}
       <section>
-        <h2 className="text-sm font-black uppercase tracking-wider mb-1" style={{ color: "#3a5214" }}>
+        <h2 className="text-sm font-black uppercase tracking-wider mb-1" style={{ color: "var(--color-brand-800)" }}>
           Custom Sections
         </h2>
-        <p className="text-xs mb-4" style={{ color: "#7a8e6a" }}>
+        <p className="text-xs mb-4" style={{ color: "var(--color-text-secondary)" }}>
           Add any extra content sections — schedule, prizes, eligibility, brochures, etc.
         </p>
         <CustomFieldBuilder fields={customFields} onChange={setCustomFields} eventSlug={slug} />
+      </section>
+
+      {/* Attachments */}
+      <section>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-sm font-black uppercase tracking-wider" style={{ color: "var(--color-brand-800)" }}>Attachments</h2>
+          <div className="flex gap-2">
+            <label className="flex items-center gap-1.5 cursor-pointer text-xs font-semibold px-3 py-1.5 rounded-lg"
+              style={{ backgroundColor: "var(--color-surface-tint)", color: "var(--color-brand-800)" }}>
+              <Upload className="w-3.5 h-3.5" />
+              {attachUploading ? "Uploading…" : "Upload file"}
+              <input type="file" accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.zip" className="sr-only"
+                disabled={attachUploading} onChange={handleAttachUpload} />
+            </label>
+            <button
+              type="button"
+              onClick={() => setAttachments((prev) => [...prev, { title: "", url: "", type: "PDF" }])}
+              className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg"
+              style={{ backgroundColor: "var(--color-surface-tint)", color: "var(--color-brand-800)" }}
+            >
+              <Plus className="w-3.5 h-3.5" /> Add link
+            </button>
+          </div>
+        </div>
+
+        {attachments.length === 0 ? (
+          <p className="text-xs py-4 text-center rounded-lg" style={{ color: "var(--color-placeholder)", border: "1px dashed #d4e6c4" }}>
+            No attachments — upload a file or add a URL link above.
+          </p>
+        ) : (
+          <div className="space-y-2">
+            {attachments.map((a, i) => (
+              <div key={i} className="flex gap-2 items-center p-3 rounded-lg" style={{ border: "1px solid var(--color-border-subtle)", backgroundColor: "#fafdf7" }}>
+                <FileDown className="w-4 h-4 shrink-0" style={{ color: "var(--color-brand-800)" }} />
+                <input
+                  value={a.title}
+                  onChange={(e) => updateAttachment(i, "title", e.target.value)}
+                  placeholder="File label"
+                  className="flex-1 text-xs rounded px-2 py-1 outline-none min-w-0 focus:ring-2 focus:ring-[--color-brand-500]"
+                  style={{ border: "1px solid var(--color-input-border)", color: "var(--color-brand-950)" }}
+                />
+                <input
+                  value={a.url}
+                  onChange={(e) => updateAttachment(i, "url", e.target.value)}
+                  placeholder="URL"
+                  className="flex-1 text-xs font-mono rounded px-2 py-1 outline-none min-w-0 focus:ring-2 focus:ring-[--color-brand-500]"
+                  style={{ border: "1px solid var(--color-input-border)", color: "var(--color-brand-950)" }}
+                />
+                <select
+                  value={a.type}
+                  onChange={(e) => updateAttachment(i, "type", e.target.value)}
+                  className="text-xs rounded px-2 py-1 outline-none shrink-0 w-20 focus:ring-2 focus:ring-[--color-brand-500]"
+                  style={{ border: "1px solid var(--color-input-border)", color: "var(--color-brand-950)" }}
+                >
+                  <option>PDF</option>
+                  <option>DOCX</option>
+                  <option>XLSX</option>
+                  <option>Image</option>
+                  <option>ZIP</option>
+                  <option>Link</option>
+                </select>
+                <button
+                  type="button"
+                  onClick={() => removeAttachment(i)}
+                  className="p-1 rounded hover:bg-red-50 shrink-0"
+                  style={{ color: "var(--color-danger)" }}
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
       </section>
 
       {/* Actions */}
@@ -373,24 +484,24 @@ export function EventForm({ event, onSave }: Props) {
           type="submit"
           disabled={pending || saved}
           className="text-sm font-semibold px-6 py-2.5 rounded-xl text-white disabled:opacity-60 transition-opacity"
-          style={{ backgroundColor: "#3a5214" }}
+          style={{ backgroundColor: "var(--color-brand-800)" }}
         >
           {pending ? "Saving…" : saved ? <><Check className="w-4 h-4 inline mr-1" />Saved</> : event ? "Save changes" : "Create event"}
         </button>
         <label
           className="flex items-center gap-2.5 cursor-pointer px-4 py-2.5 rounded-xl border transition-colors"
           style={published
-            ? { backgroundColor: "#f0f7e6", borderColor: "#7bbf3e", color: "#1c2e06" }
-            : { backgroundColor: "#f8f8f8", borderColor: "#d4e6c4", color: "#7a8e6a" }}
+            ? { backgroundColor: "var(--color-surface-tint)", borderColor: "#7bbf3e", color: "var(--color-brand-950)" }
+            : { backgroundColor: "#f8f8f8", borderColor: "var(--color-input-border)", color: "var(--color-text-secondary)" }}
         >
-          <input type="checkbox" checked={published} onChange={(e) => setPublished(e.target.checked)} className="w-4 h-4 rounded" style={{ accentColor: "#3a5214" }} />
+          <input type="checkbox" checked={published} onChange={(e) => setPublished(e.target.checked)} className="w-4 h-4 rounded" style={{ accentColor: "var(--color-brand-800)" }} />
           <span className="text-sm font-semibold">{published ? "Live on website" : "Set live on website"}</span>
         </label>
         <button
           type="button"
           onClick={() => router.push("/admin/content/events")}
           className="text-sm font-medium px-4 py-2.5 rounded-xl"
-          style={{ color: "#7a8e6a" }}
+          style={{ color: "var(--color-text-secondary)" }}
         >
           Cancel
         </button>

@@ -2,9 +2,12 @@ import type { Metadata } from "next";
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { Breadcrumb } from "@/components/breadcrumb";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Building2 } from "lucide-react";
 import Image from "next/image";
+import { Reveal } from "@/components/reveal";
 import { getPageSection } from "@/lib/cms/page-sections";
+import { getPublishedStartups } from "@/lib/cms/startups";
+import { getPublishedPrograms } from "@/lib/cms/programs";
 
 export const revalidate = 60; // ISR: re-fetch at most once per minute
 
@@ -21,7 +24,25 @@ export default async function AboutPage({ params }: Props) {
   setRequestLocale(locale);
   const t = await getTranslations("about_page");
 
-  const cms = await getPageSection("about").catch(() => null);
+  const [cms, homeCms, startups, programs] = await Promise.all([
+    getPageSection("about").catch(() => null),
+    getPageSection("home").catch(() => null),
+    getPublishedStartups().catch(() => []),
+    getPublishedPrograms().catch(() => []),
+  ]);
+
+  const manualStats: { value: string; label: string }[] = homeCms?.stats ?? [
+    { value: "₹47.10 Cr", label: "Total Undertaking" },
+    { value: "1,000+",    label: "B-Plans Screened" },
+    { value: "25",        label: "Patents Facilitated" },
+    { value: "600+",      label: "Funding Transactions" },
+  ];
+  const stat = (label: string, fallback: string) =>
+    manualStats.find(s => s.label === label)?.value ?? fallback;
+
+  // Always built from live stats so it stays in sync when values change in the admin
+  const backgroundP1 = `The Incubation Centre, IIT Patna (IC IITP) is a result of a collaboration between the Government of India (47%) and the Government of Bihar (53%), constituting a ${stat("Total Undertaking", "₹47.10 Cr")} undertaking tied to India's MAKE IN INDIA initiative. It is registered as the IC IITP Society (Reg. No. 987, 2015–16).`;
+  const backgroundP3 = `Since inception, IC IITP has screened over ${stat("B-Plans Screened", "1,000+")} business plans, supported ${startups.length}+ startups across ${programs.length} incubation schemes, facilitated ${stat("Patents Facilitated", "25")} patent filings, and deployed seed capital through ${stat("Funding Transactions", "600+")} funding transactions.`;
   const buildingImg       = cms?.building_image_url      || "/images/building.jpg";
   const inaugImg          = cms?.inauguration_image_url  || "/images/inauguration.jpg";
   const inaugCaption      = cms?.inauguration_caption    || "IC IITP was officially inaugurated as a joint initiative of the Government of India and the Government of Bihar — marking the start of a new chapter for deep-tech entrepreneurship in the region. Since then, the centre has grown into India’s leading ESDM and Medical Electronics Incubator.";
@@ -30,18 +51,31 @@ export default async function AboutPage({ params }: Props) {
   const ceremonyBody      = cms?.ceremony_overlay_body   || "Empowering innovators across Bihar and beyond";
 
   return (
-    <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-      <Breadcrumb items={[{ label: "Home", href: "/" }, { label: t("heroTitle") }]} />
-
+    <div className="min-h-screen" style={{ backgroundColor: "var(--color-surface)" }}>
       {/* Hero */}
-      <header className="mb-12">
-        <h1 className="text-4xl font-black text-[--color-brand-800] mb-4">
-          {t("heroTitle")}
-        </h1>
-        <p className="text-xl text-[--color-text-subtle] max-w-3xl leading-relaxed">
-          {t("heroSubtitle")}
-        </p>
-      </header>
+      <div className="relative overflow-hidden" style={{ background: "linear-gradient(160deg, var(--color-hero-from) 0%, var(--color-hero-via) 60%, var(--color-hero-to) 100%)" }}>
+        <div className="absolute inset-0 pointer-events-none" aria-hidden="true"
+          style={{ backgroundImage: "radial-gradient(circle, #ffffff07 1px, transparent 1px)", backgroundSize: "24px 24px" }} />
+        <div className="absolute -top-24 -right-24 w-96 h-96 rounded-full pointer-events-none" aria-hidden="true"
+          style={{ background: "radial-gradient(circle, #f7942020 0%, transparent 65%)" }} />
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-20 relative z-10">
+          <Breadcrumb items={[{ label: "Home", href: "/" }, { label: t("heroTitle") }]} variant="light" />
+          <Reveal>
+            <p className="text-xs font-semibold uppercase tracking-widest mb-4 text-orange-200">
+              <Building2 className="w-3.5 h-3.5 inline mr-1.5 -mt-0.5" aria-hidden="true" />
+              IIT Patna
+            </p>
+            <h1 className="text-2xl sm:text-4xl lg:text-6xl font-black text-white leading-tight mb-4">
+              {t("heroTitle")}
+            </h1>
+            <p className="text-white/80 text-lg max-w-lg">
+              {t("heroSubtitle")}
+            </p>
+          </Reveal>
+        </div>
+      </div>
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
 
       {/* Campus hero photo */}
       <div className="relative rounded-2xl overflow-hidden mb-12" style={{ aspectRatio: "21/8" }}>
@@ -62,8 +96,8 @@ export default async function AboutPage({ params }: Props) {
 
       {/* Vision & Mission */}
       <section aria-labelledby="vision-heading" className="mb-12 grid sm:grid-cols-2 gap-6">
-        <div className="rounded-xl text-white p-8" style={{ backgroundColor: "#3a5214" }}>
-          <h2 id="vision-heading" className="text-xs font-semibold uppercase tracking-widest text-white/60 mb-3">
+        <div className="rounded-xl text-white p-8" style={{ backgroundColor: "var(--color-brand-800)" }}>
+          <h2 id="vision-heading" className="text-xs font-semibold uppercase tracking-widest text-orange-200 mb-3">
             {t("visionLabel")}
           </h2>
           <p className="text-lg leading-relaxed">
@@ -86,14 +120,14 @@ export default async function AboutPage({ params }: Props) {
           {t("backgroundHeading")}
         </h2>
         <div className="prose max-w-none text-[--color-text-subtle] leading-relaxed space-y-4">
-          <p>{t("backgroundP1")}</p>
+          <p>{backgroundP1}</p>
           <p>{t("backgroundP2")}</p>
-          <p>{t("backgroundP3")}</p>
+          <p>{backgroundP3}</p>
         </div>
       </section>
 
       {/* Founding moment */}
-      <div className="mb-12 rounded-2xl overflow-hidden grid sm:grid-cols-[1fr_1.2fr]" style={{ backgroundColor: "#f4f8e8" }}>
+      <div className="mb-12 rounded-2xl overflow-hidden grid sm:grid-cols-[1fr_1.2fr]" style={{ backgroundColor: "var(--color-brand-50)" }}>
         <div className="relative min-h-[220px]">
           <Image
             src={inaugImg}
@@ -105,8 +139,8 @@ export default async function AboutPage({ params }: Props) {
           />
         </div>
         <div className="p-8 flex flex-col justify-center">
-          <p className="text-xs font-semibold uppercase tracking-widest mb-2" style={{ color: "#5a7c20" }}>Est. 2015</p>
-          <h3 className="text-xl font-bold mb-3" style={{ color: "#1c2e06" }}>Inaugurated with a clear mission</h3>
+          <p className="text-xs font-semibold uppercase tracking-widest mb-2" style={{ color: "var(--color-brand-600)" }}>Est. 2015</p>
+          <h3 className="text-xl font-bold mb-3" style={{ color: "var(--color-brand-950)" }}>Inaugurated with a clear mission</h3>
           <p className="text-sm leading-relaxed" style={{ color: "#4a5a30" }}>{inaugCaption}</p>
         </div>
       </div>
@@ -116,10 +150,10 @@ export default async function AboutPage({ params }: Props) {
         <h2 id="stats-heading" className="sr-only">Key Numbers</h2>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
           {([
-            [t("stat1Value"), t("stat1Label")],
-            [t("stat2Value"), t("stat2Label")],
-            [t("stat3Value"), t("stat3Label")],
-            [t("stat4Value"), t("stat4Label")],
+            [stat("Total Undertaking", "₹47.10 Cr"),  t("stat1Label")],
+            [t("stat2Value"),                          t("stat2Label")],
+            [`${startups.length}+`,                   t("stat3Label")],
+            [String(programs.length),                  t("stat4Label")],
           ] as [string, string][]).map(([value, label]) => (
             <div
               key={label}
@@ -146,9 +180,9 @@ export default async function AboutPage({ params }: Props) {
         <div className="absolute inset-0" style={{ background: "linear-gradient(to right, rgba(42,58,16,0.82) 0%, rgba(42,58,16,0.3) 55%, transparent 80%)" }} />
         <div className="absolute inset-0 flex items-center px-8">
           <div className="max-w-xs">
-            <p className="text-white/65 text-xs uppercase tracking-widest font-semibold mb-2">Community</p>
+            <p className="text-orange-200 text-xs uppercase tracking-widest font-semibold mb-2">Community</p>
             <p className="text-white text-xl font-bold leading-snug">{ceremonyTitle}</p>
-            <p className="text-white/65 text-sm mt-2">{ceremonyBody}</p>
+            <p className="text-white/80 text-sm mt-2">{ceremonyBody}</p>
           </div>
         </div>
       </div>
@@ -214,6 +248,7 @@ export default async function AboutPage({ params }: Props) {
           ))}
         </div>
       </section>
+      </div>
     </div>
   );
 }

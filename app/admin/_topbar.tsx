@@ -44,7 +44,7 @@ export function AdminTopBar() {
   return (
     <header
       className="flex items-center gap-3 px-6 py-3 border-b bg-white sticky top-0 z-20"
-      style={{ borderColor: "#e8f0e0" }}
+      style={{ borderColor: "var(--color-border-subtle)" }}
     >
       {/* Back button */}
       {!isRoot && (
@@ -52,7 +52,7 @@ export function AdminTopBar() {
           type="button"
           onClick={() => router.back()}
           className="flex items-center justify-center w-7 h-7 rounded-md transition-colors hover:bg-gray-100 shrink-0"
-          style={{ color: "#5a6644" }}
+          style={{ color: "var(--color-text-body)" }}
           aria-label="Go back"
         >
           <ChevronLeft className="w-4 h-4" />
@@ -69,14 +69,14 @@ export function AdminTopBar() {
                 <ChevronRight className="w-3.5 h-3.5 shrink-0" style={{ color: "#b0c090" }} aria-hidden="true" />
               )}
               {isLast ? (
-                <span className="font-semibold truncate" style={{ color: "#1c2e06" }}>
+                <span className="font-semibold truncate" style={{ color: "var(--color-brand-950)" }}>
                   {crumb.label}
                 </span>
               ) : (
                 <a
                   href={crumb.href}
                   className="truncate transition-colors hover:underline"
-                  style={{ color: "#5a7c20" }}
+                  style={{ color: "var(--color-brand-600)" }}
                 >
                   {crumb.label}
                 </a>

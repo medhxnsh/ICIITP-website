@@ -7,9 +7,9 @@
     "facilities": "Facilities",
     "events": "Events",
     "notifications": "Notifications",
+    "news": "News",
     "contact": "Contact",
     "apply": "Apply",
-    "search": "Search",
     "help": "Help",
     "downloads": "Downloads"
   },
@@ -79,8 +79,7 @@
     "copyright": "Copyright Policy",
     "hyperlinking": "Hyperlinking Policy",
     "security": "Security Policy",
-    "accessibility": "Accessibility Statement",
-    "sitemap": "Sitemap"
+    "accessibility": "Accessibility Statement"
   },
   "a11y": {
     "skipToContent": "Skip to main content",
@@ -106,8 +105,6 @@
     "openForm": "Open form in new tab",
     "loading": "Loading…",
     "noResults": "No results found",
-    "search": "Search",
-    "searchPlaceholder": "Search the site…",
     "backToTop": "Back to top",
     "home": "Home",
     "breadcrumbSep": "/"
@@ -161,10 +158,6 @@
     "downloads": {
       "title": "Downloads",
       "description": "All documents, forms, and PDFs available for download."
-    },
-    "search": {
-      "title": "Search",
-      "description": "Search the IC IITP website."
     },
     "apply": {
       "title": "Apply",

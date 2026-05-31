@@ -1,92 +1,135 @@
-/**
- * CMS data layer for incubation programs.
- * CMS programs are additive — they extend the static JSON programs in content/en/programs/.
- */
-import { getDb } from "@/lib/firebase-admin";
-import { FieldValue, Timestamp } from "firebase-admin/firestore";
-import { COLLECTIONS } from "./collections";
+import "server-only";
+import { apiFetch } from "@/lib/api-client";
 
-const COL = COLLECTIONS.programs;
+export type ProgramSection = "PRE_INCUBATION" | "INCUBATION" | "ACCELERATION";
 
 export interface ProgramImage {
   url: string;
   alt?: string;
 }
 
+export interface ProgramStep {
+  step: number;
+  title: string;
+  description: string;
+}
+
+export interface FundingDetail {
+  type?: string;
+  name?: string;
+  amount: string;
+  purpose: string;
+  structure?: string;
+  note?: string;
+}
+
+export interface WhatWeTakeItem {
+  type: string;
+  terms: string[];
+}
+
+export interface ApplyLink {
+  label: string;
+  href: string;
+  amount?: string;
+}
+
 export interface CmsProgram {
   slug: string;
-  published?: boolean;
-  logoUrl?: string;
-  images?: ProgramImage[];
-  imageLayout?: "banner" | "grid" | "carousel";
   title?: string;
+  section?: ProgramSection;
+  published?: boolean;
+  system?: boolean;
+  applicationDeadline?: string;
+  // Core identity
+  badge?: string;
+  badgeOther?: string;
+  funder?: string;
+  logoUrl?: string;
+  // Descriptive
   tagline?: string;
   about?: string;
   status?: string;
   statusNote?: string;
-  applicationDeadline?: string; // ISO date "YYYY-MM-DD" for auto-badge
-  customBadge?: string;
-  applyUrl?: string;
-  equipmentFormUrl?: string;
-  applicationFormUrl?: string;
-  contactEmail?: string;
+  // Financial
   grant?: string;
   schemeOutlay?: string;
   stipend?: string;
   duration?: string;
+  cardHighlight?: string;
+  area?: string;
+  // Contact / apply
+  applyUrl?: string;
+  applicationForm?: string;
+  equipmentFormUrl?: string;
+  applicationFormUrl?: string;
+  contactEmail?: string;
+  applyLinks?: ApplyLink[];
+  // Sectors / domains
+  sectors?: string[];
+  domains?: string[];
+  focusAreas?: string[];
+  // Lists — visibility controlled by visibleSections
   eligibility?: string[];
+  pilotEligibility?: string[];
+  matchingEligibility?: string[];
   notEligible?: string[];
   preferences?: string[];
   objectives?: string[];
   targetAudience?: string[];
   expectedOutcomes?: string[];
   support?: string[];
+  facilities?: string[];
   notes?: string[];
   disclaimer?: string[];
-  updatedAt?: Timestamp;
+  // Section visibility — only sections listed here are rendered on public page.
+  // Absent/empty means "show all non-empty" (backward compat for old records).
+  visibleSections?: string[];
+  // Structured rich content
+  process?: ProgramStep[];
+  fundingVerticals?: FundingDetail[];
+  funding?: FundingDetail[];
+  whatWeTake?: WhatWeTakeItem[];
+  termsNote?: string;
+  // Media
+  images?: ProgramImage[];
+  imageLayout?: "banner" | "grid" | "carousel";
+  // Meta
+  customBadge?: string;
+  updatedAt?: string;
 }
 
-export type CmsProgramDoc = CmsProgram & { id: string };
+export type CmsProgramDoc = CmsProgram & { id: string; title: string };
 
 export async function getCmsProgramBySlug(slug: string): Promise<CmsProgramDoc | null> {
-  const snap = await getDb()
-    .collection(COL)
-    .where("slug", "==", slug)
-    .limit(1)
-    .get();
-  if (snap.empty) return null;
-  const d = snap.docs[0];
-  return { id: d.id, ...(d.data() as CmsProgram) };
+  return apiFetch<CmsProgramDoc>(`/programs/${encodeURIComponent(slug)}`, { skipAuth: true, revalidate: 300, tags: ["programs", `program-${slug}`] });
 }
 
 export async function getAllCmsPrograms(): Promise<CmsProgramDoc[]> {
-  const snap = await getDb().collection(COL).get();
-  return snap.docs.map((d) => ({ id: d.id, ...(d.data() as CmsProgram) }));
+  const data = await apiFetch<{ content: CmsProgramDoc[] }>("/programs/all?size=200");
+  return data?.content ?? [];
 }
 
-/** Creates or updates the CMS record for a program slug. */
+export async function getPublishedPrograms(): Promise<CmsProgramDoc[]> {
+  const data = await apiFetch<CmsProgramDoc[]>("/programs", { skipAuth: true, revalidate: 300, tags: ["programs"] });
+  return data ?? [];
+}
+
+export async function getProgramsBySection(section: ProgramSection): Promise<CmsProgramDoc[]> {
+  const data = await apiFetch<CmsProgramDoc[]>(`/programs?section=${section}`, { skipAuth: true, revalidate: 300, tags: ["programs"] });
+  return data ?? [];
+}
+
 export async function upsertCmsProgram(
   slug: string,
   data: Omit<CmsProgram, "slug" | "updatedAt">
 ): Promise<void> {
-  const snap = await getDb()
-    .collection(COL)
-    .where("slug", "==", slug)
-    .limit(1)
-    .get();
-  const payload = { ...data, slug, updatedAt: FieldValue.serverTimestamp() };
-  if (snap.empty) {
-    await getDb().collection(COL).add(payload);
-  } else {
-    await snap.docs[0].ref.update(payload);
-  }
+  await apiFetch<CmsProgramDoc>(`/programs/${encodeURIComponent(slug)}`, {
+    method: "PUT",
+    body: JSON.stringify({ ...data, slug }),
+  });
 }
 
 export async function deleteCmsProgram(slug: string): Promise<void> {
-  const snap = await getDb()
-    .collection(COL)
-    .where("slug", "==", slug)
-    .limit(1)
-    .get();
-  if (!snap.empty) await snap.docs[0].ref.delete();
+  await apiFetch<void>(`/programs/${encodeURIComponent(slug)}`, { method: "DELETE" });
 }

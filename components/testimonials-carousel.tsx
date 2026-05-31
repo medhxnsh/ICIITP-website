@@ -122,7 +122,7 @@ export function TestimonialsCarousel() {
               <motion.div
                 key={active}
                 className="relative rounded-2xl"
-                style={{ backgroundColor: "#f79420" }}
+                style={{ backgroundColor: "var(--color-accent)" }}
                 initial={{ opacity: 0, y: 16, scale: 0.97 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: -10, scale: 0.97 }}
@@ -202,7 +202,7 @@ export function TestimonialsCarousel() {
           <motion.div
             key={active}
             className="rounded-2xl p-7"
-            style={{ backgroundColor: "#f79420" }}
+            style={{ backgroundColor: "var(--color-accent)" }}
             initial={{ opacity: 0, x: 40 }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -40 }}
@@ -262,7 +262,7 @@ export function TestimonialsCarousel() {
               <motion.div
                 key={active}
                 className="absolute inset-y-0 left-0 rounded-full"
-                style={{ backgroundColor: "#f79420" }}
+                style={{ backgroundColor: "var(--color-accent)" }}
                 initial={{ width: "0%" }}
                 animate={{ width: "100%" }}
                 transition={{ duration: 5.5, ease: "linear" }}

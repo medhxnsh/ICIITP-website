@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+  <rect width="200" height="200" rx="16" fill="#2C3E50"/>
+  <rect x="8" y="8" width="184" height="184" rx="12" fill="#34495E" opacity="0.5"/>
+  <polygon points="100,30 114,72 158,72 123,97 136,139 100,115 64,139 77,97 42,72 86,72" fill="#C0392B" opacity="0.85"/>
+  <text x="100" y="104" font-family="Arial,sans-serif" font-size="18" font-weight="900" fill="white" text-anchor="middle">iDEX</text>
+  <text x="100" y="154" font-family="Arial,sans-serif" font-size="10" fill="white" text-anchor="middle" opacity="0.9">Innovations for Defence</text>
+  <text x="100" y="168" font-family="Arial,sans-serif" font-size="10" fill="white" text-anchor="middle" opacity="0.9">Excellence · MoD</text>
+</svg>

@@ -1,14 +1,5 @@
-/**
- * CMS data layer for editable page sections (home hero, about, contact).
- * Each section is stored as a single Firestore document keyed by page name.
- */
-import { getDb } from "@/lib/firebase-admin";
-import { FieldValue, Timestamp } from "firebase-admin/firestore";
-import { COLLECTIONS } from "./collections";
-
-const COL = COLLECTIONS.pageSections;
-
-// ── Home ──────────────────────────────────────────────────────────────────────
+import "server-only";
+import { apiFetch } from "@/lib/api-client";
 
 export interface HomeStat { value: string; label: string }
 
@@ -22,21 +13,18 @@ export interface HomeSection {
   team_staff_image_url: string;
   team_group_image_url: string;
   stats: HomeStat[];
-  updatedAt?: Timestamp;
 }
-
-// ── Contact ───────────────────────────────────────────────────────────────────
 
 export interface ContactSection {
   address: string;
-  phone: string;
+  enquiries_name: string;
+  enquiries_phone: string;
+  incubation_name: string;
+  incubation_phone: string;
   email: string;
   hours: string;
   maps_embed_url: string;
-  updatedAt?: Timestamp;
 }
-
-// ── About ─────────────────────────────────────────────────────────────────────
 
 export interface AboutSection {
   building_image_url: string;
@@ -45,10 +33,7 @@ export interface AboutSection {
   ceremony_image_url: string;
   ceremony_overlay_title: string;
   ceremony_overlay_body: string;
-  updatedAt?: Timestamp;
 }
-
-// ── CRUD ──────────────────────────────────────────────────────────────────────
 
 type SectionKey = "home" | "contact" | "about";
 type SectionData = HomeSection | ContactSection | AboutSection;
@@ -57,14 +42,14 @@ export async function getPageSection(key: "home"): Promise<HomeSection | null>;
 export async function getPageSection(key: "contact"): Promise<ContactSection | null>;
 export async function getPageSection(key: "about"): Promise<AboutSection | null>;
 export async function getPageSection(key: SectionKey): Promise<SectionData | null> {
-  const doc = await getDb().collection(COL).doc(key).get();
-  if (!doc.exists) return null;
-  return doc.data() as SectionData;
+  const data = await apiFetch<Record<string, unknown>>(`/pages/${key}`, { skipAuth: true, revalidate: 300, tags: [`page-section-${key}`] });
+  if (!data || Object.keys(data).length === 0) return null;
+  return data as unknown as SectionData;
 }
 
-export async function upsertPageSection(key: SectionKey, data: Omit<SectionData, "updatedAt">): Promise<void> {
-  await getDb()
-    .collection(COL)
-    .doc(key)
-    .set({ ...data, updatedAt: FieldValue.serverTimestamp() }, { merge: true });
+export async function upsertPageSection(key: SectionKey, data: Omit<SectionData, never>): Promise<void> {
+  await apiFetch<Record<string, unknown>>(`/pages/${key}`, {
+    method: "PUT",
+    body: JSON.stringify(data),
+  });
 }

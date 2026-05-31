@@ -3,28 +3,30 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "sh -c 'set -a && . config/.env && set +a && exec node --max-old-space-size=4096 node_modules/.bin/next dev --turbopack'",
+    "dev:all": "bash scripts/dev.sh",
+    "backend": "bash scripts/backend.sh",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "docker:up": "docker compose --env-file config/.env up --build -d",
+    "docker:down": "docker compose --env-file config/.env down",
+    "docker:logs": "docker compose --env-file config/.env logs -f",
+    "docker:restart": "docker compose --env-file config/.env restart"
   },
   "dependencies": {
-    "bcryptjs": "^3.0.3",
-    "firebase-admin": "^13.9.0",
+    "exceljs": "^4.4.0",
     "framer-motion": "^12.38.0",
     "googleapis": "^171.4.0",
-    "groq-sdk": "^1.2.0",
-    "iron-session": "^8.0.4",
     "lucide-react": "^1.8.0",
-    "minisearch": "^7.2.0",
     "next": "16.2.4",
     "next-intl": "^4.9.1",
     "react": "19.2.4",
-    "react-dom": "19.2.4"
+    "react-dom": "19.2.4",
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
-    "@types/bcryptjs": "^2.4.6",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",

@@ -14,7 +14,7 @@ export function DeleteDownloadButton({ id, title }: { id: string; title: string 
         startTransition(() => deleteDownloadAction(id));
       }}
       className="text-xs font-medium px-3 py-1.5 rounded-lg disabled:opacity-50"
-      style={{ backgroundColor: "#fef2f2", color: "#b91c1c" }}
+      style={{ backgroundColor: "var(--color-danger-bg)", color: "var(--color-danger)" }}
     >
       {pending ? "Deleting…" : "Delete"}
     </button>

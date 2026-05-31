@@ -2,14 +2,22 @@
 
 import { requireAuth } from "@/lib/auth";
 import { upsertCmsProgram, deleteCmsProgram, type CmsProgram } from "@/lib/cms/programs";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { redirect } from "next/navigation";
 
 export type ProgramFormData = Omit<CmsProgram, "slug" | "updatedAt">;
 
 function revalidateAll(slug: string) {
-  revalidatePath(`/programs/${slug}`);
-  revalidatePath("/admin/content/programs");
+  revalidateTag("programs", "default");
+  revalidateTag(`program-${slug}`, "default");
+  revalidatePath("/", "layout");
+  revalidatePath("/programs", "page");
+  revalidatePath(`/programs/${slug}`, "page");
+  revalidatePath("/programs/pre-incubation", "page");
+  revalidatePath("/programs/incubation", "page");
+  revalidatePath("/programs/acceleration", "page");
+  revalidatePath("/about", "page");
+  revalidatePath("/admin/content/programs", "page");
 }
 
 export async function saveProgramAction(
@@ -30,8 +38,7 @@ export async function deleteProgramAction(slug: string): Promise<void> {
   await requireAuth();
   try {
     await deleteCmsProgram(slug);
-    revalidatePath("/admin/content/programs");
-    revalidatePath(`/programs/${slug}`);
+    revalidateAll(slug);
   } catch (err) {
     console.error("[deleteProgramAction]", err);
     throw new Error("Failed to delete program");

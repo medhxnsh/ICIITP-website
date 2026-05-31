@@ -194,3 +194,15 @@ export async function updateStatusDirect(formData: FormData): Promise<void> {
     revalidatePath("/admin/applications");
   }
 }
+
+export async function deleteSubmissionDirect(formData: FormData): Promise<void> {
+  const { requireAuth } = await import("@/lib/auth");
+  await requireAuth();
+  const { revalidatePath } = await import("next/cache");
+  const { deleteSubmission } = await import("@/lib/submissions");
+  const id = formData.get("id") as string;
+  if (id) {
+    await deleteSubmission(id);
+    revalidatePath("/admin/applications");
+  }
+}

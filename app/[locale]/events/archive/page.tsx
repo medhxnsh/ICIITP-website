@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
 import { setRequestLocale } from "next-intl/server";
-import { getArchivedEvents } from "@/lib/content";
+import { getPublishedEvents, resolveStatus } from "@/lib/cms/events";
 import { Link } from "@/i18n/navigation";
 import { Breadcrumb } from "@/components/breadcrumb";
 import { Calendar } from "lucide-react";
+
+export const revalidate = 60;
 
 interface Props { params: Promise<{ locale: string }> }
 
@@ -15,10 +17,11 @@ export const metadata: Metadata = {
 export default async function EventsArchivePage({ params }: Props) {
   const { locale } = await params;
   setRequestLocale(locale);
-  const archived = getArchivedEvents(locale);
+  const all = await getPublishedEvents().catch(() => []);
+  const archived = all.filter((e) => resolveStatus(e) === "Closed" || resolveStatus(e) === "Concluded" as never);
 
   return (
-    <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-[96px] pb-12">
       <Breadcrumb items={[{ label: "Home", href: "/" }, { label: "Events", href: "/events" }, { label: "Archive" }]} />
       <header className="mb-8">
         <h1 className="text-3xl font-black text-[--color-brand-800] mb-3">Events Archive</h1>

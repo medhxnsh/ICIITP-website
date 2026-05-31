@@ -4,23 +4,20 @@ import { useActionState } from "react";
 import { submitIncubation, type FormState } from "@/app/actions/submit";
 import { Field, Label, Input, Textarea, Select, SubmitButton, ErrorBanner, SuccessBanner } from "./form-field";
 
-const SCHEMES = [
-  { value: "icitp-incubation", label: "Flagship Incubation" },
-  { value: "nidhi-prayas", label: "NIDHI Prayas" },
-  { value: "nidhi-eir", label: "NIDHI-EIR" },
-  { value: "sisf", label: "SISF" },
-  { value: "bionest", label: "BiONEST" },
-  { value: "genesis", label: "GENESIS" },
-];
-
 const STAGES = ["Idea", "Prototype", "MVP", "Revenue Stage", "Growth Stage"];
+
+export interface SchemeOption {
+  value: string;
+  label: string;
+}
 
 interface Props {
   defaultScheme?: string;
   locale?: string;
+  schemes?: SchemeOption[];
 }
 
-export function IncubationForm({ defaultScheme, locale = "en" }: Props) {
+export function IncubationForm({ defaultScheme, locale = "en", schemes = [] }: Props) {
   const [state, action, pending] = useActionState<FormState, FormData>(submitIncubation, null);
 
   if (state?.success) {
@@ -39,7 +36,7 @@ export function IncubationForm({ defaultScheme, locale = "en" }: Props) {
         <Label htmlFor="scheme" required>Program / Scheme</Label>
         <Select id="scheme" required defaultValue={defaultScheme ?? ""}>
           <option value="" disabled>Select a scheme</option>
-          {SCHEMES.map((s) => <option key={s.value} value={s.value}>{s.label}</option>)}
+          {schemes.map((s) => <option key={s.value} value={s.value}>{s.label}</option>)}
         </Select>
       </Field>
 
@@ -104,7 +101,7 @@ export function IncubationForm({ defaultScheme, locale = "en" }: Props) {
       </Field>
 
       <SubmitButton label="Submit application" pending={pending} />
-      <p className="text-xs mt-3" style={{ color: "#7a8e6a" }}>
+      <p className="text-xs mt-3" style={{ color: "var(--color-text-secondary)" }}>
         By submitting you agree to IC IITP reviewing your application. We do not share your data with third parties.
       </p>
     </form>

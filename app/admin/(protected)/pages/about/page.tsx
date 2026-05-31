@@ -33,12 +33,12 @@ export default async function AboutEditorPage() {
   return (
     <main className="p-8 max-w-2xl">
       <div className="flex items-center gap-3 mb-8">
-        <Link href="/admin/pages" className="text-sm" style={{ color: "#7a8e6a" }}>← Pages</Link>
-        <span style={{ color: "#d4e6c4" }}>/</span>
-        <BookOpen className="w-5 h-5" style={{ color: "#3a5214" }} />
-        <h1 className="text-xl font-black" style={{ color: "#1c2e06" }}>Edit About Page</h1>
+        <Link href="/admin/pages" className="text-sm" style={{ color: "var(--color-text-secondary)" }}>← Pages</Link>
+        <span style={{ color: "var(--color-input-border)" }}>/</span>
+        <BookOpen className="w-5 h-5" style={{ color: "var(--color-brand-800)" }} />
+        <h1 className="text-xl font-black" style={{ color: "var(--color-brand-950)" }}>Edit About Page</h1>
       </div>
-      <p className="text-sm mb-6" style={{ color: "#7a8e6a" }}>
+      <p className="text-sm mb-6" style={{ color: "var(--color-text-secondary)" }}>
         Replace images and update key text on the <a href="/about" target="_blank" className="underline">/about</a> page.
       </p>
       <AboutSectionForm current={current} onSave={saveAboutSectionAction} />

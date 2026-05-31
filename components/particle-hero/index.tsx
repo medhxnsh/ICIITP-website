@@ -4,11 +4,19 @@ import { useEffect, useRef } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 
-const SPACING = 8;   // px between particles — larger = sparser grid
-const MARGIN = 12;   // tiny edge margin so particles don't clip exactly at border
+const SPACING = 8;       // px between particles — larger = sparser grid
+const SPACING_MOBILE = 14; // coarser grid on narrow viewports
+const MARGIN = 12;       // tiny edge margin so particles don't clip exactly at border
 const THICKNESS = Math.pow(90, 2);  // mouse repulsion radius²
 const DRAG = 0.95;
 const EASE = 0.25;
+// Tier budget by CPU core count (navigator.hardwareConcurrency, resolved at runtime)
+function getMaxParticles(): number {
+  const cores = navigator.hardwareConcurrency ?? 4;
+  if (cores <= 2) return 4000;   // low-end phones / old hardware
+  if (cores <= 4) return 8000;   // mid-range
+  return 15000;                   // 6+ cores — full density
+}
 // Brand orange accent: #f79420 → rgb(247, 148, 32)
 const PR = 247, PG = 148, PB = 32;
 
@@ -20,11 +28,27 @@ interface Particle {
 
 const EASE_CURVE = [0.22, 1, 0.36, 1] as const;
 
-export function ParticleHero() {
+export function ParticleHero({
+  bplans = "1,000+",
+  patents = "25",
+  totalUndertaking = "₹47.10 Cr",
+  startupCount = 100,
+  schemeCount = 6,
+  labCount = 6,
+}: {
+  bplans?: string;
+  patents?: string;
+  totalUndertaking?: string;
+  startupCount?: number;
+  schemeCount?: number;
+  labCount?: number;
+}) {
   const wrapRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
     const wrap = wrapRef.current;
     const canvas = canvasRef.current;
     if (!wrap || !canvas) return;
@@ -39,23 +63,29 @@ export function ParticleHero() {
     let w = 0, h = 0;
     let numParticles = 0;
 
-    const init = () => {
-      w = canvas.width = wrap.clientWidth;
-      h = canvas.height = wrap.clientHeight;
+    const maxParticles = getMaxParticles();
 
-      // Fill edge-to-edge with minimal margin
-      const cols = Math.floor((w - MARGIN * 2) / SPACING);
-      const rows = Math.floor((h - MARGIN * 2) / SPACING);
+    const init = () => {
+      w = canvas.width = window.innerWidth;
+      h = canvas.height = window.innerHeight;
+
+      // Adaptive spacing: scale up so total particles stay within budget
+      // while always covering the full viewport evenly.
+      const minSpacing = w < 640 ? SPACING_MOBILE : SPACING;
+      const area = (w - MARGIN * 2) * (h - MARGIN * 2);
+      const spacing = Math.max(minSpacing, Math.ceil(Math.sqrt(area / maxParticles)));
+      const cols = Math.floor((w - MARGIN * 2) / spacing);
+      const rows = Math.floor((h - MARGIN * 2) / spacing);
       numParticles = cols * rows;
 
-      const gridW = (cols - 1) * SPACING;
-      const gridH = (rows - 1) * SPACING;
+      const gridW = (cols - 1) * spacing;
+      const gridH = (rows - 1) * spacing;
       const ox0 = (w - gridW) / 2;
       const oy0 = (h - gridH) / 2;
 
       list = Array.from({ length: numParticles }, (_, i) => {
-        const ox = ox0 + SPACING * (i % cols);
-        const oy = oy0 + SPACING * Math.floor(i / cols);
+        const ox = ox0 + spacing * (i % cols);
+        const oy = oy0 + spacing * Math.floor(i / cols);
         return { x: ox, y: oy, ox, oy, vx: 0, vy: 0 };
       });
     };
@@ -96,7 +126,7 @@ export function ParticleHero() {
         }
       } else {
         ctx.clearRect(0, 0, w, h);
-        ctx.fillStyle = `rgba(${PR},${PG},${PB},0.5)`;
+        ctx.fillStyle = `rgba(${PR},${PG},${PB},0.95)`;
         for (let i = 0; i < numParticles; i++) {
           const p = list[i];
           ctx.fillRect(~~p.x, ~~p.y, 2, 2);
@@ -106,18 +136,18 @@ export function ParticleHero() {
 
     animId = requestAnimationFrame(step);
 
-    const ro = new ResizeObserver(() => init());
-    ro.observe(wrap);
+    const onResize = () => init();
+    window.addEventListener("resize", onResize);
 
     return () => {
       cancelAnimationFrame(animId);
       wrap.removeEventListener("mousemove", onMove);
-      ro.disconnect();
+      window.removeEventListener("resize", onResize);
     };
   }, []);
 
   return (
-    <div ref={wrapRef} className="flex-1 relative w-full min-h-0">
+    <div ref={wrapRef} className="absolute inset-0">
       <canvas
         ref={canvasRef}
         className="absolute inset-0 w-full h-full"
@@ -136,23 +166,23 @@ export function ParticleHero() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, ease: EASE_CURVE }}
         >
-          <p style={{ textAlign: "center", color: "#1c2e06", fontSize: "16px", fontWeight: 900, letterSpacing: "0.22em", textTransform: "uppercase" }}>
+          <p style={{ textAlign: "center", color: "var(--color-brand-950)", fontSize: "16px", fontWeight: 900, letterSpacing: "0.22em", textTransform: "uppercase" }}>
             Incubation Centre
           </p>
-          <p style={{ textAlign: "center", color: "#5a7c20", fontSize: "13px", fontWeight: 600, letterSpacing: "0.18em", textTransform: "uppercase", marginTop: "4px" }}>
+          <p style={{ textAlign: "center", color: "var(--color-brand-600)", fontSize: "13px", fontWeight: 600, letterSpacing: "0.18em", textTransform: "uppercase", marginTop: "4px" }}>
             IIT Patna
           </p>
         </motion.div>
 
         <motion.h1
           className="text-[2.75rem] sm:text-5xl lg:text-[3.75rem] font-black max-w-3xl mx-auto leading-[1.05] mb-5 text-center"
-          style={{ color: "#1c2e06", letterSpacing: "-0.02em" }}
+          style={{ color: "var(--color-brand-950)", letterSpacing: "-0.02em" }}
           initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.75, delay: 0.15, ease: EASE_CURVE }}
         >
           India&apos;s leading ESDM &amp;{" "}
-          <span style={{ color: "#3a5214" }}>Medical Electronics</span>{" "}
+          <span style={{ color: "var(--color-brand-800)" }}>Medical Electronics</span>{" "}
           Incubator
         </motion.h1>
 
@@ -163,8 +193,8 @@ export function ParticleHero() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.65, delay: 0.28, ease: EASE_CURVE }}
         >
-          ₹47.10 Crore undertaking backed by Govt. of India &amp; Govt. of Bihar
-          {" — "}100+ startups, 6 labs, 6 schemes.
+          {totalUndertaking}{" "}undertaking backed by Govt. of India &amp; Govt. of Bihar
+          {" — "}{startupCount}+ startups, {labCount} labs, {schemeCount} schemes.
         </motion.p>
 
         {/* Apply Now CTA — intersection-observed by the nav */}
@@ -179,15 +209,15 @@ export function ParticleHero() {
             id="hero-cta"
             href="/apply"
             className="inline-flex items-center gap-2.5 px-8 py-3.5 rounded-xl text-white font-bold text-base transition-all hover:scale-[1.03] hover:shadow-lg active:scale-[0.98]"
-            style={{ backgroundColor: "#f79420", boxShadow: "0 4px 24px #f7942040" }}
+            style={{ backgroundColor: "var(--color-accent)", boxShadow: "0 4px 24px #f7942040" }}
           >
             Apply Now
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M17 8l4 4m0 0l-4 4m4-4H3" />
             </svg>
           </Link>
-          <p className="text-[11px] font-medium text-center" style={{ color: "#5a7c20" }}>
-            1,000+ B-plans screened &nbsp;·&nbsp; 25 patents filed &nbsp;·&nbsp; Est. 2015
+          <p className="text-[11px] font-medium text-center" style={{ color: "var(--color-brand-600)" }}>
+            {bplans} B-plans screened &nbsp;·&nbsp; {patents} patents filed &nbsp;·&nbsp; Est. 2015
           </p>
         </motion.div>
       </div>

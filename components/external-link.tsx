@@ -90,7 +90,7 @@ export function ExternalLink({ href, children, className, style }: ExternalLinkP
             rel="noopener noreferrer"
             onClick={() => setOpen(false)}
             className="px-4 py-2 text-sm rounded-[--radius-md] font-semibold text-white transition-colors hover:opacity-90"
-            style={{ backgroundColor: "#3a5214" }}
+            style={{ backgroundColor: "var(--color-brand-800)" }}
           >
             {t("externalLinkConfirm")}
           </a>

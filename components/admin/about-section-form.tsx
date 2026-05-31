@@ -1,7 +1,7 @@
 "use client";
 /**
  * Admin form for editing the About page content section.
- * Submits to saveAboutSectionAction which upserts the Firestore page-sections doc.
+ * Submits to saveAboutSectionAction which upserts the page-sections CMS record.
  */
 import { useTransition, useState } from "react";
 
@@ -38,17 +38,17 @@ function ImageField({ label, name, value, hint }: { label: string; name: string;
 
   return (
     <div>
-      <label className="block text-sm font-semibold mb-1" style={{ color: "#1c2e06" }}>{label}</label>
-      <p className="text-xs mb-2" style={{ color: "#7a8e6a" }}>{hint}</p>
+      <label className="block text-sm font-semibold mb-1" style={{ color: "var(--color-brand-950)" }}>{label}</label>
+      <p className="text-xs mb-2" style={{ color: "var(--color-text-secondary)" }}>{hint}</p>
       <input type="hidden" name={name} value={url} />
       {url && (
-        <div className="mb-2 rounded-lg overflow-hidden border" style={{ borderColor: "#d4e6c4", maxHeight: 120 }}>
+        <div className="mb-2 rounded-lg overflow-hidden border" style={{ borderColor: "var(--color-input-border)", maxHeight: 120 }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={url} alt="" className="w-full object-cover" style={{ maxHeight: 120 }} />
         </div>
       )}
       <div className="flex items-center gap-2">
-        <label className="cursor-pointer text-xs font-medium px-3 py-1.5 rounded-md border" style={{ borderColor: "#d4e6c4", color: "#3a5214" }}>
+        <label className="cursor-pointer text-xs font-medium px-3 py-1.5 rounded-md border" style={{ borderColor: "var(--color-input-border)", color: "var(--color-brand-800)" }}>
           {uploading ? "Uploading…" : url ? "Replace image" : "Upload image"}
           <input type="file" accept="image/*" className="sr-only" onChange={handleFile} disabled={uploading} />
         </label>
@@ -76,7 +76,7 @@ export function AboutSectionForm({ current, onSave }: Props) {
   return (
     <form onSubmit={handleSubmit} className="space-y-7">
       <section>
-        <h2 className="text-sm font-bold uppercase tracking-wider mb-4" style={{ color: "#3a5214" }}>Images</h2>
+        <h2 className="text-sm font-bold uppercase tracking-wider mb-4" style={{ color: "var(--color-brand-800)" }}>Images</h2>
         <div className="space-y-5">
           <ImageField label="Campus / Building photo" name="building_image_url" value={current.building_image_url}
             hint="Replaces /images/building.jpg on the about page hero banner." />
@@ -88,33 +88,33 @@ export function AboutSectionForm({ current, onSave }: Props) {
       </section>
 
       <section>
-        <h2 className="text-sm font-bold uppercase tracking-wider mb-4" style={{ color: "#3a5214" }}>Text</h2>
+        <h2 className="text-sm font-bold uppercase tracking-wider mb-4" style={{ color: "var(--color-brand-800)" }}>Text</h2>
         <div className="space-y-5">
           <div>
-            <label className="block text-sm font-semibold mb-1" style={{ color: "#1c2e06" }}>Inauguration caption</label>
+            <label className="block text-sm font-semibold mb-1" style={{ color: "var(--color-brand-950)" }}>Inauguration caption</label>
             <textarea name="inauguration_caption" defaultValue={current.inauguration_caption} rows={4}
-              className="w-full rounded-lg border px-3 py-2 text-sm focus:outline-none focus:ring-2"
-              style={{ borderColor: "#d4e6c4" }} />
+              className="w-full rounded-lg border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[--color-brand-500]"
+              style={{ borderColor: "var(--color-input-border)" }} />
           </div>
           <div>
-            <label className="block text-sm font-semibold mb-1" style={{ color: "#1c2e06" }}>Community banner title</label>
+            <label className="block text-sm font-semibold mb-1" style={{ color: "var(--color-brand-950)" }}>Community banner title</label>
             <input name="ceremony_overlay_title" type="text" defaultValue={current.ceremony_overlay_title}
-              className="w-full rounded-lg border px-3 py-2 text-sm" style={{ borderColor: "#d4e6c4" }} />
+              className="w-full rounded-lg border px-3 py-2 text-sm" style={{ borderColor: "var(--color-input-border)" }} />
           </div>
           <div>
-            <label className="block text-sm font-semibold mb-1" style={{ color: "#1c2e06" }}>Community banner subtitle</label>
+            <label className="block text-sm font-semibold mb-1" style={{ color: "var(--color-brand-950)" }}>Community banner subtitle</label>
             <input name="ceremony_overlay_body" type="text" defaultValue={current.ceremony_overlay_body}
-              className="w-full rounded-lg border px-3 py-2 text-sm" style={{ borderColor: "#d4e6c4" }} />
+              className="w-full rounded-lg border px-3 py-2 text-sm" style={{ borderColor: "var(--color-input-border)" }} />
           </div>
         </div>
       </section>
 
       {error && <p className="text-sm text-red-600">{error}</p>}
-      {saved && <p className="text-sm font-medium" style={{ color: "#3a5214" }}>✓ Saved — changes are live.</p>}
+      {saved && <p className="text-sm font-medium" style={{ color: "var(--color-brand-800)" }}>✓ Saved — changes are live.</p>}
 
       <button type="submit" disabled={pending}
         className="px-6 py-2.5 rounded-lg text-sm font-semibold text-white disabled:opacity-60"
-        style={{ backgroundColor: "#3a5214" }}>
+        style={{ backgroundColor: "var(--color-brand-800)" }}>
         {pending ? "Saving…" : "Save Changes"}
       </button>
     </form>

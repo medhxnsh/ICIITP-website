@@ -22,7 +22,7 @@ const FIELD_TYPE_COLORS: Record<FieldType, string> = {
   url: "#0284c7",
   date: "#b45309",
   image: "#15803d",
-  list: "#b91c1c",
+  list: "var(--color-danger)",
 };
 
 interface Props {
@@ -89,7 +89,7 @@ export function CustomFieldBuilder({ fields, onChange, eventSlug }: Props) {
   return (
     <div className="space-y-3">
       {sorted.length === 0 && (
-        <p className="text-sm py-6 text-center rounded-xl" style={{ color: "#7a8e6a", border: "1.5px dashed #d4e6c4" }}>
+        <p className="text-sm py-6 text-center rounded-xl" style={{ color: "var(--color-text-secondary)", border: "1.5px dashed #d4e6c4" }}>
           No custom fields yet. Add sections like Prize Money, Schedule, Eligibility…
         </p>
       )}
@@ -100,7 +100,7 @@ export function CustomFieldBuilder({ fields, onChange, eventSlug }: Props) {
           <div
             key={field.id}
             className="rounded-xl bg-white"
-            style={{ border: "1px solid #e8f0e0" }}
+            style={{ border: "1px solid var(--color-border-subtle)" }}
           >
             {/* Header row */}
             <div className="flex items-center gap-3 px-4 py-3">
@@ -110,8 +110,8 @@ export function CustomFieldBuilder({ fields, onChange, eventSlug }: Props) {
               >
                 {field.type}
               </span>
-              <span className="flex-1 text-sm font-medium truncate" style={{ color: "#1c2e06" }}>
-                {field.label || <span style={{ color: "#aab89e" }}>Untitled field</span>}
+              <span className="flex-1 text-sm font-medium truncate" style={{ color: "var(--color-brand-950)" }}>
+                {field.label || <span style={{ color: "var(--color-placeholder)" }}>Untitled field</span>}
               </span>
               <div className="flex items-center gap-1 shrink-0">
                 <button
@@ -119,7 +119,7 @@ export function CustomFieldBuilder({ fields, onChange, eventSlug }: Props) {
                   onClick={() => move(field.id, -1)}
                   disabled={idx === 0}
                   className="p-1 rounded disabled:opacity-30"
-                  style={{ color: "#7a8e6a" }}
+                  style={{ color: "var(--color-text-secondary)" }}
                   aria-label="Move up"
                 >
                   <ChevronUp className="w-3.5 h-3.5" />
@@ -129,7 +129,7 @@ export function CustomFieldBuilder({ fields, onChange, eventSlug }: Props) {
                   onClick={() => move(field.id, 1)}
                   disabled={idx === sorted.length - 1}
                   className="p-1 rounded disabled:opacity-30"
-                  style={{ color: "#7a8e6a" }}
+                  style={{ color: "var(--color-text-secondary)" }}
                   aria-label="Move down"
                 >
                   <ChevronDown className="w-3.5 h-3.5" />
@@ -139,8 +139,8 @@ export function CustomFieldBuilder({ fields, onChange, eventSlug }: Props) {
                   onClick={() => setEditingId(isEditing ? null : field.id)}
                   className="text-xs font-medium px-2.5 py-1 rounded-lg"
                   style={isEditing
-                    ? { backgroundColor: "#3a5214", color: "white" }
-                    : { backgroundColor: "#f0f7e6", color: "#3a5214" }}
+                    ? { backgroundColor: "var(--color-brand-800)", color: "white" }
+                    : { backgroundColor: "var(--color-surface-tint)", color: "var(--color-brand-800)" }}
                 >
                   {isEditing ? "Done" : "Edit"}
                 </button>
@@ -148,7 +148,7 @@ export function CustomFieldBuilder({ fields, onChange, eventSlug }: Props) {
                   type="button"
                   onClick={() => removeField(field.id)}
                   className="p-1 rounded"
-                  style={{ color: "#b91c1c" }}
+                  style={{ color: "var(--color-danger)" }}
                   aria-label="Delete field"
                 >
                   <Trash2 className="w-3.5 h-3.5" />
@@ -161,19 +161,19 @@ export function CustomFieldBuilder({ fields, onChange, eventSlug }: Props) {
               <div className="px-4 pb-4 space-y-3" style={{ borderTop: "1px solid #f0f7e6" }}>
                 <div className="grid sm:grid-cols-2 gap-3 pt-3">
                   <div>
-                    <label className="block text-xs font-medium mb-1" style={{ color: "#5a6644" }}>
-                      Label <span style={{ color: "#b91c1c" }}>*</span>
+                    <label className="block text-xs font-medium mb-1" style={{ color: "var(--color-text-body)" }}>
+                      Label <span style={{ color: "var(--color-danger)" }}>*</span>
                     </label>
                     <input
                       value={field.label}
                       onChange={(e) => updateField(field.id, { label: e.target.value })}
                       placeholder="e.g. Prize Money"
-                      className="w-full text-sm rounded-lg px-3 py-2 outline-none"
-                      style={{ border: "1px solid #d4e6c4", color: "#1c2e06" }}
+                      className="w-full text-sm rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-[--color-brand-500]"
+                      style={{ border: "1px solid var(--color-input-border)", color: "var(--color-brand-950)" }}
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-medium mb-1" style={{ color: "#5a6644" }}>
+                    <label className="block text-xs font-medium mb-1" style={{ color: "var(--color-text-body)" }}>
                       Type
                     </label>
                     <select
@@ -185,8 +185,8 @@ export function CustomFieldBuilder({ fields, onChange, eventSlug }: Props) {
                           items: [],
                         })
                       }
-                      className="w-full text-sm rounded-lg px-3 py-2 outline-none"
-                      style={{ border: "1px solid #d4e6c4", color: "#1c2e06" }}
+                      className="w-full text-sm rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-[--color-brand-500]"
+                      style={{ border: "1px solid var(--color-input-border)", color: "var(--color-brand-950)" }}
                     >
                       {FIELD_TYPES.map((t) => (
                         <option key={t.value} value={t.value}>{t.label}</option>
@@ -196,22 +196,22 @@ export function CustomFieldBuilder({ fields, onChange, eventSlug }: Props) {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-medium mb-1" style={{ color: "#5a6644" }}>
+                  <label className="block text-xs font-medium mb-1" style={{ color: "var(--color-text-body)" }}>
                     Admin description (optional help text, not shown on site)
                   </label>
                   <input
                     value={field.description}
                     onChange={(e) => updateField(field.id, { description: e.target.value })}
                     placeholder="Remind yourself what goes here"
-                    className="w-full text-sm rounded-lg px-3 py-2 outline-none"
-                    style={{ border: "1px solid #d4e6c4", color: "#1c2e06" }}
+                    className="w-full text-sm rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-[--color-brand-500]"
+                    style={{ border: "1px solid var(--color-input-border)", color: "var(--color-brand-950)" }}
                   />
                 </div>
 
                 {/* Value editor per type */}
                 {field.type === "list" ? (
                   <div>
-                    <label className="block text-xs font-medium mb-1" style={{ color: "#5a6644" }}>
+                    <label className="block text-xs font-medium mb-1" style={{ color: "var(--color-text-body)" }}>
                       List items
                     </label>
                     <div className="space-y-1.5 mb-2">
@@ -224,8 +224,8 @@ export function CustomFieldBuilder({ fields, onChange, eventSlug }: Props) {
                               next[i] = e.target.value;
                               updateField(field.id, { items: next });
                             }}
-                            className="flex-1 text-sm rounded-lg px-3 py-1.5 outline-none"
-                            style={{ border: "1px solid #d4e6c4", color: "#1c2e06" }}
+                            className="flex-1 text-sm rounded-lg px-3 py-1.5 outline-none focus:ring-2 focus:ring-[--color-brand-500]"
+                            style={{ border: "1px solid var(--color-input-border)", color: "var(--color-brand-950)" }}
                           />
                           <button
                             type="button"
@@ -234,7 +234,7 @@ export function CustomFieldBuilder({ fields, onChange, eventSlug }: Props) {
                               updateField(field.id, { items: next });
                             }}
                             className="p-1.5 rounded"
-                            style={{ color: "#b91c1c" }}
+                            style={{ color: "var(--color-danger)" }}
                           >
                             <Trash2 className="w-3.5 h-3.5" />
                           </button>
@@ -255,8 +255,8 @@ export function CustomFieldBuilder({ fields, onChange, eventSlug }: Props) {
                           }
                         }}
                         placeholder="Add item (Enter to add)"
-                        className="flex-1 text-sm rounded-lg px-3 py-1.5 outline-none"
-                        style={{ border: "1px solid #d4e6c4", color: "#1c2e06" }}
+                        className="flex-1 text-sm rounded-lg px-3 py-1.5 outline-none focus:ring-2 focus:ring-[--color-brand-500]"
+                        style={{ border: "1px solid var(--color-input-border)", color: "var(--color-brand-950)" }}
                       />
                       <button
                         type="button"
@@ -267,7 +267,7 @@ export function CustomFieldBuilder({ fields, onChange, eventSlug }: Props) {
                           }
                         }}
                         className="text-xs font-medium px-3 py-1.5 rounded-lg"
-                        style={{ backgroundColor: "#f0f7e6", color: "#3a5214" }}
+                        style={{ backgroundColor: "var(--color-surface-tint)", color: "var(--color-brand-800)" }}
                       >
                         Add
                       </button>
@@ -275,7 +275,7 @@ export function CustomFieldBuilder({ fields, onChange, eventSlug }: Props) {
                   </div>
                 ) : field.type === "image" ? (
                   <div>
-                    <label className="block text-xs font-medium mb-1" style={{ color: "#5a6644" }}>
+                    <label className="block text-xs font-medium mb-1" style={{ color: "var(--color-text-body)" }}>
                       Image
                     </label>
                     {field.value && (
@@ -287,7 +287,7 @@ export function CustomFieldBuilder({ fields, onChange, eventSlug }: Props) {
                     )}
                     <label
                       className="flex items-center gap-2 cursor-pointer text-sm px-3 py-2 rounded-lg w-fit"
-                      style={{ backgroundColor: "#f0f7e6", color: "#3a5214" }}
+                      style={{ backgroundColor: "var(--color-surface-tint)", color: "var(--color-brand-800)" }}
                     >
                       <Upload className="w-3.5 h-3.5" />
                       {uploading === field.id ? "Uploading…" : field.value ? "Replace image" : "Upload image"}
@@ -307,35 +307,35 @@ export function CustomFieldBuilder({ fields, onChange, eventSlug }: Props) {
                         value={field.value}
                         onChange={(e) => updateField(field.id, { value: e.target.value })}
                         placeholder="or paste image URL"
-                        className="mt-2 w-full text-xs rounded-lg px-3 py-2 outline-none font-mono"
-                        style={{ border: "1px solid #d4e6c4", color: "#5a6644" }}
+                        className="mt-2 w-full text-xs rounded-lg px-3 py-2 outline-none font-mono focus:ring-2 focus:ring-[--color-brand-500]"
+                        style={{ border: "1px solid var(--color-input-border)", color: "var(--color-text-body)" }}
                       />
                     )}
                   </div>
                 ) : field.type === "textarea" ? (
                   <div>
-                    <label className="block text-xs font-medium mb-1" style={{ color: "#5a6644" }}>
+                    <label className="block text-xs font-medium mb-1" style={{ color: "var(--color-text-body)" }}>
                       Content
                     </label>
                     <textarea
                       value={field.value}
                       onChange={(e) => updateField(field.id, { value: e.target.value })}
                       rows={4}
-                      className="w-full text-sm rounded-lg px-3 py-2 outline-none resize-y"
-                      style={{ border: "1px solid #d4e6c4", color: "#1c2e06" }}
+                      className="w-full text-sm rounded-lg px-3 py-2 outline-none resize-y focus:ring-2 focus:ring-[--color-brand-500]"
+                      style={{ border: "1px solid var(--color-input-border)", color: "var(--color-brand-950)" }}
                     />
                   </div>
                 ) : (
                   <div>
-                    <label className="block text-xs font-medium mb-1" style={{ color: "#5a6644" }}>
+                    <label className="block text-xs font-medium mb-1" style={{ color: "var(--color-text-body)" }}>
                       {field.type === "url" ? "URL" : field.type === "date" ? "Date" : "Value"}
                     </label>
                     <input
                       type={field.type === "date" ? "date" : field.type === "url" ? "url" : "text"}
                       value={field.value}
                       onChange={(e) => updateField(field.id, { value: e.target.value })}
-                      className="w-full text-sm rounded-lg px-3 py-2 outline-none"
-                      style={{ border: "1px solid #d4e6c4", color: "#1c2e06" }}
+                      className="w-full text-sm rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-[--color-brand-500]"
+                      style={{ border: "1px solid var(--color-input-border)", color: "var(--color-brand-950)" }}
                     />
                   </div>
                 )}
@@ -349,7 +349,7 @@ export function CustomFieldBuilder({ fields, onChange, eventSlug }: Props) {
         type="button"
         onClick={addField}
         className="flex items-center gap-2 text-sm font-medium px-4 py-2.5 rounded-xl w-full justify-center transition-colors"
-        style={{ border: "1.5px dashed #b8d4a0", color: "#3a5214" }}
+        style={{ border: "1.5px dashed #b8d4a0", color: "var(--color-brand-800)" }}
       >
         <Plus className="w-4 h-4" />
         Add custom field

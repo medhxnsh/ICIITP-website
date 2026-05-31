@@ -1,0 +1,67 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:iciitp}
+    username: ${DB_USER:iciitp}
+    password: ${DB_PASSWORD:changeme}
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 2
+      connection-timeout: 30000
+
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
+    deserialization:
+      fail-on-unknown-properties: false
+
+  jpa:
+    hibernate:
+      # update = dev only (auto-adds columns). validate = production (refuses to start if schema mismatches).
+      # Set HIBERNATE_DDL_AUTO=validate in config/.env for Docker/production.
+      ddl-auto: ${HIBERNATE_DDL_AUTO:update}
+    open-in-view: false
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+
+  servlet:
+    multipart:
+      max-file-size: 50MB
+      max-request-size: 50MB
+
+  mail:
+    host: ${SMTP_HOST:localhost}
+    port: ${SMTP_PORT:587}
+    username: ${SMTP_USER:}
+    password: ${SMTP_PASS:}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+          connectiontimeout: 5000
+          timeout: 5000
+          writetimeout: 5000
+
+server:
+  port: ${SERVER_PORT:8080}
+
+app:
+  jwt:
+    secret: ${JWT_SECRET:change-this-secret-in-production-min-32-chars}
+    access-expiry-ms: ${JWT_ACCESS_EXPIRY_MS:900000}     # 15 minutes (override via env)
+    refresh-expiry-ms: ${JWT_REFRESH_EXPIRY_MS:604800000} # 7 days (override via env)
+  upload:
+    dir: ${UPLOAD_DIR:../data/uploads}
+  cors:
+    allowed-origins: ${CORS_ORIGINS:http://localhost:3000}
+  seed:
+    admin-email: ${ADMIN_EMAIL:admin@iciitp.ac.in}
+    admin-password: ${ADMIN_PASSWORD:changeme123}
+    force-reset: ${ADMIN_FORCE_RESET:false}
+  email:
+    recovery: ${RECOVERY_EMAIL:}
+    notify: ${NOTIFY_EMAIL:}

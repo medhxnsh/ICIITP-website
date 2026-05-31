@@ -1,10 +1,5 @@
-/**
- * Application submission CRUD backed by Firestore per-type collections.
- * Each type lives in its own collection (e.g. "submissions-incubation")
- * so queries never need a composite index across types.
- */
-import { getDb } from "./firebase-admin";
-import { FieldValue, Timestamp } from "firebase-admin/firestore";
+import "server-only";
+import { apiFetch } from "@/lib/api-client";
 
 export type SubmissionType =
   | "incubation"
@@ -21,8 +16,8 @@ export interface BaseSubmission {
   type: SubmissionType;
   status: SubmissionStatus;
   locale: string;
-  createdAt: Timestamp | FieldValue;
-  updatedAt: Timestamp | FieldValue;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface IncubationSubmission extends BaseSubmission {
@@ -101,71 +96,64 @@ export type Submission =
   | CareersSubmission
   | ContactSubmission;
 
-// Each submission type lives in its own Firestore collection
-const COLLECTION_MAP: Record<SubmissionType, string> = {
-  "incubation":   "incubation-applications",
-  "lab-access":   "lab-access-requests",
-  "internship":   "internship-applications",
-  "feedback":     "feedback",
-  "careers":      "careers-applications",
-  "contact":      "contact-enquiries",
-};
-
-export function collectionFor(type: SubmissionType): string {
-  return COLLECTION_MAP[type];
-}
-
 export type NewSubmission = { type: SubmissionType; locale: string } & Record<string, unknown>;
 
+interface ApiSubmission {
+  id: string;
+  type: string;
+  data: string;
+  status: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+function fromApi(s: ApiSubmission): Submission & { id: string } {
+  let parsed: Record<string, unknown> = {};
+  try { parsed = JSON.parse(s.data); } catch { /* ignore */ }
+  return {
+    ...parsed,
+    id: s.id,
+    type: s.type as SubmissionType,
+    status: s.status as SubmissionStatus,
+    createdAt: s.createdAt,
+    updatedAt: s.updatedAt,
+  } as Submission & { id: string };
+}
+
+export function collectionFor(type: SubmissionType): string {
+  return `submissions-${type}`;
+}
+
 export async function createSubmission(data: NewSubmission): Promise<string> {
-  const col = collectionFor(data.type);
-  const ref = await getDb().collection(col).add({
-    ...data,
-    status: "pending" as SubmissionStatus,
-    createdAt: FieldValue.serverTimestamp(),
-    updatedAt: FieldValue.serverTimestamp(),
+  const result = await apiFetch<ApiSubmission>(`/submissions/${data.type}`, {
+    method: "POST",
+    body: JSON.stringify(data),
+    skipAuth: true,
   });
-  return ref.id;
+  return result.id;
 }
 
 export async function getSubmissions(
   type?: SubmissionType,
-  limit = 100
+  limit = 200
 ): Promise<(Submission & { id: string })[]> {
-  const db = getDb();
-
-  if (type) {
-    const snap = await db
-      .collection(collectionFor(type))
-      .orderBy("createdAt", "desc")
-      .limit(limit)
-      .get();
-    return snap.docs.map((d) => ({ id: d.id, ...(d.data() as Submission) }));
-  }
-
-  // "all" — fetch from every collection and merge, sorted by createdAt
-  const all = await Promise.all(
-    Object.values(COLLECTION_MAP).map((col) =>
-      db.collection(col).orderBy("createdAt", "desc").limit(limit).get()
-    )
-  );
-  return all
-    .flatMap((snap) => snap.docs.map((d) => ({ id: d.id, ...(d.data() as Submission) })))
-    .sort((a, b) => {
-      const ta = a.createdAt instanceof Timestamp ? a.createdAt.seconds : 0;
-      const tb = b.createdAt instanceof Timestamp ? b.createdAt.seconds : 0;
-      return tb - ta;
-    })
-    .slice(0, limit);
+  const params = new URLSearchParams({ size: String(limit) });
+  if (type) params.set("type", type);
+  const data = await apiFetch<{ content: ApiSubmission[] }>(`/submissions?${params}`);
+  return (data?.content ?? []).map(fromApi);
 }
 
 export async function updateSubmissionStatus(
   id: string,
-  type: SubmissionType,
+  _type: SubmissionType,
   status: SubmissionStatus
 ): Promise<void> {
-  await getDb().collection(collectionFor(type)).doc(id).update({
-    status,
-    updatedAt: FieldValue.serverTimestamp(),
+  await apiFetch<ApiSubmission>(`/submissions/${id}/status`, {
+    method: "PATCH",
+    body: JSON.stringify({ status }),
   });
+}
+
+export async function deleteSubmission(id: string): Promise<void> {
+  await apiFetch<void>(`/submissions/${id}`, { method: "DELETE" });
 }

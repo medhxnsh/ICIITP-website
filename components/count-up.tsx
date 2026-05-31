@@ -13,10 +13,12 @@ function parseValue(v: string): { prefix: string; num: number; suffix: string } 
   const prefixMatch = v.match(/^[^\d]*/);
   const prefix = prefixMatch ? prefixMatch[0] : "";
   const rest = v.slice(prefix.length);
-  // Parse number (handles "47.10", "1,000", "100", "25", "600", "6")
-  const numStr = rest.replace(/,/g, "").match(/[\d.]+/)?.[0] ?? "0";
+  // Remove thousands separators before parsing so "1,000+" → "1000+"
+  const strippedRest = rest.replace(/,/g, "");
+  const numStr = strippedRest.match(/[\d.]+/)?.[0] ?? "0";
   const num = parseFloat(numStr);
-  const suffix = rest.slice(numStr.length); // e.g. " Cr", "+", ""
+  // Use strippedRest (not rest) to slice suffix — avoids residual comma chars
+  const suffix = strippedRest.slice(numStr.length); // e.g. " Cr", "+", ""
   return { prefix, num, suffix };
 }
 

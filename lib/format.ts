@@ -3,7 +3,6 @@
  * Replace per-file copies — there is no good reason to have five `fmtDate`
  * implementations across the admin pages.
  */
-import { Timestamp } from "firebase-admin/firestore";
 
 const DATE_FMT: Intl.DateTimeFormatOptions = {
   day: "numeric",
@@ -12,13 +11,11 @@ const DATE_FMT: Intl.DateTimeFormatOptions = {
 };
 
 /**
- * Best-effort milliseconds extraction from anything that might be a
- * Firestore Timestamp, a serialized `{_seconds, _nanoseconds}` object,
- * a Date, a number, or an ISO string.
+ * Best-effort milliseconds extraction from an ISO string, Date, number,
+ * or serialized {_seconds, _nanoseconds} object.
  */
 export function tsToMs(ts: unknown): number {
   if (!ts) return 0;
-  if (ts instanceof Timestamp) return ts.toMillis();
   if (ts instanceof Date) return ts.getTime();
   if (typeof ts === "number") return ts;
   if (typeof ts === "string") {

@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+  <rect width="200" height="200" rx="16" fill="#6C3483"/>
+  <rect x="8" y="8" width="184" height="184" rx="12" fill="#8E44AD" opacity="0.4"/>
+  <text x="100" y="72" font-family="Arial,sans-serif" font-size="18" font-weight="700" fill="white" text-anchor="middle" letter-spacing="2">STARTUP</text>
+  <text x="100" y="108" font-family="Arial,sans-serif" font-size="32" font-weight="900" fill="#F9E900" text-anchor="middle" letter-spacing="1">BIHAR</text>
+  <line x1="40" y1="120" x2="160" y2="120" stroke="white" stroke-width="1.5" opacity="0.5"/>
+  <text x="100" y="142" font-family="Arial,sans-serif" font-size="10" fill="white" text-anchor="middle" opacity="0.9">Dept. of Industries</text>
+  <text x="100" y="158" font-family="Arial,sans-serif" font-size="10" fill="white" text-anchor="middle" opacity="0.9">Govt. of Bihar</text>
+</svg>

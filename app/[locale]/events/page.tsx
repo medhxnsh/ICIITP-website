@@ -1,12 +1,11 @@
 import type { Metadata } from "next";
 import { setRequestLocale } from "next-intl/server";
-import { getAllEvents, isEventArchived } from "@/lib/content";
-import { getWpPublishedEvents, isWpEventArchived } from "@/lib/cms/wp-events";
 import { getPublishedEvents, resolveStatus } from "@/lib/cms/events";
 import { Link } from "@/i18n/navigation";
 import { Breadcrumb } from "@/components/breadcrumb";
 import { Calendar, ArrowRight } from "lucide-react";
 import { eventStatusBadge, badgeStyle } from "@/lib/badge-utils";
+import { Reveal } from "@/components/reveal";
 
 export const revalidate = 60; // ISR: re-fetch at most once per minute
 
@@ -33,65 +32,56 @@ export default async function EventsPage({ params }: Props) {
   const { locale } = await params;
   setRequestLocale(locale);
 
-  // Fetch events — WP first, Firebase fallback
-  let cmsEvents: DisplayEvent[] = [];
+  let allEvents: DisplayEvent[] = [];
   try {
-    const raw = await getWpPublishedEvents();
-    cmsEvents = raw.map((ev) => ({
-      slug: ev.slug,
-      title: ev.title,
-      tagline: ev.tagline,
-      category: ev.category,
-      status: ev.status,
-      organiser: ev.contactEmail || "IC IITP",
-      archived: isWpEventArchived(ev),
-      customBadge: ev.customBadge,
-    }));
+    const raw = await getPublishedEvents();
+    allEvents = raw.map((ev) => {
+      const status = resolveStatus(ev);
+      return {
+        slug: ev.slug,
+        title: ev.title,
+        tagline: ev.tagline,
+        category: ev.category,
+        status,
+        organiser: ev.organiser ?? "IC IITP",
+        archived: status === "Closed",
+        customBadge: ev.customBadge,
+      };
+    });
   } catch {
-    try {
-      const raw = await getPublishedEvents();
-      cmsEvents = raw.map((ev) => {
-        const status = resolveStatus(ev);
-        return {
-          slug: ev.slug, title: ev.title, tagline: ev.tagline,
-          category: ev.category, status, organiser: "IC IITP",
-          archived: status === "Closed", customBadge: ev.customBadge,
-        };
-      });
-    } catch {}
+    // CMS unavailable
   }
 
-  // Static events from JSON, excluding slugs already covered by CMS
-  const cmsSlugSet = new Set(cmsEvents.map((e) => e.slug));
-  const staticRaw = getAllEvents(locale);
-  const staticEvents: DisplayEvent[] = staticRaw
-    .filter((e) => !cmsSlugSet.has(e.slug))
-    .map((e) => ({
-      slug: e.slug,
-      title: e.title,
-      tagline: e.tagline,
-      category: e.category,
-      status: e.status,
-      organiser: e.organiser,
-      archived: isEventArchived(e),
-    }));
-
-  // CMS events first, then static
-  const all = [...cmsEvents, ...staticEvents];
+  const all = allEvents;
   const active = all.filter((e) => !e.archived);
   const archived = all.filter((e) => e.archived);
 
   return (
-    <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-      <Breadcrumb items={[{ label: "Home", href: "/" }, { label: "Events" }]} />
+    <div className="min-h-screen" style={{ backgroundColor: "var(--color-surface)" }}>
+      {/* Hero */}
+      <div className="relative overflow-hidden" style={{ background: "linear-gradient(160deg, var(--color-hero-from) 0%, var(--color-hero-via) 60%, var(--color-hero-to) 100%)" }}>
+        <div className="absolute inset-0 pointer-events-none" aria-hidden="true"
+          style={{ backgroundImage: "radial-gradient(circle, #ffffff07 1px, transparent 1px)", backgroundSize: "24px 24px" }} />
+        <div className="absolute -top-24 -right-24 w-96 h-96 rounded-full pointer-events-none" aria-hidden="true"
+          style={{ background: "radial-gradient(circle, #f7942020 0%, transparent 65%)" }} />
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-20 relative z-10">
+          <Breadcrumb items={[{ label: "Home", href: "/" }, { label: "Events" }]} variant="light" />
+          <Reveal>
+            <p className="text-xs font-semibold uppercase tracking-widest mb-4 text-orange-200">
+              <Calendar className="w-3.5 h-3.5 inline mr-1.5 -mt-0.5" aria-hidden="true" />
+              From IC IITP
+            </p>
+            <h1 className="text-2xl sm:text-4xl lg:text-6xl font-black text-white leading-tight mb-4">
+              Events
+            </h1>
+            <p className="text-white/80 text-lg max-w-lg">
+              Competitions, training programmes, and entrepreneurship courses organised by IC IITP.
+            </p>
+          </Reveal>
+        </div>
+      </div>
 
-      <header className="mb-10">
-        <h1 className="text-4xl font-black text-[--color-brand-800] mb-4">Events</h1>
-        <p className="text-lg text-[--color-text-subtle] max-w-2xl">
-          Competitions, training programmes, and entrepreneurship courses organised by IC IITP.
-        </p>
-      </header>
-
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
       {active.length > 0 && (
         <section aria-labelledby="active-events-heading" className="mb-12">
           <h2 id="active-events-heading" className="text-xl font-bold text-[--color-text] mb-5">
@@ -116,6 +106,7 @@ export default async function EventsPage({ params }: Props) {
           </div>
         </section>
       )}
+      </div>
     </div>
   );
 }

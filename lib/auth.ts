@@ -1,66 +1,105 @@
-/**
- * Admin session helpers (iron-session backed cookies).
- * Production REQUIRES IRON_SESSION_PASSWORD env var; dev falls back to a
- * dummy password and warns on first use so missing config is loud.
- */
-import { getIronSession, type IronSession } from "iron-session";
+import "server-only";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
+import { createHmac } from "crypto";
 
 export interface AdminSession {
   userId: string;
   email: string;
   name: string;
-  role: "admin" | "editor";
+  role: "ADMIN" | "VIEWER";
+  superAdmin: boolean;
+  permissions: string[];
 }
 
-function resolveSessionPassword(): string {
-  const fromEnv = process.env.IRON_SESSION_PASSWORD;
-  if (fromEnv && fromEnv.length >= 32) return fromEnv;
+export const TOKEN_COOKIE   = "iciitp_token";
+export const REFRESH_COOKIE = "iciitp_refresh";
 
-  if (process.env.NODE_ENV === "production") {
-    // Fail loud — refusing to sign cookies with a guessable password.
-    throw new Error(
-      "IRON_SESSION_PASSWORD is missing or too short (≥32 chars required in production). " +
-      "Set it in the environment before starting the server."
-    );
-  }
+// Access token: 15 min. Must match app.jwt.access-expiry-ms in Spring Boot.
+export const ACCESS_COOKIE_MAX_AGE  = 60 * 15;
+// Refresh token: 7 days. Must match app.jwt.refresh-expiry-ms in Spring Boot.
+export const REFRESH_COOKIE_MAX_AGE = 60 * 60 * 24 * 7;
 
-  if (!resolveSessionPassword.warned) {
-    console.warn(
-      "[auth] IRON_SESSION_PASSWORD not set — using dev-only fallback. " +
-      "Production deploys will refuse to boot without this env var."
-    );
-    resolveSessionPassword.warned = true;
-  }
-  return "dev-only-fallback-password-32-chars!!";
-}
-resolveSessionPassword.warned = false as boolean;
-
-export const SESSION_OPTIONS = {
-  password: resolveSessionPassword(),
-  cookieName: "iciitp_admin_session",
-  cookieOptions: {
-    secure: process.env.NODE_ENV === "production",
-    httpOnly: true,
-    sameSite: "lax" as const,
-    maxAge: 60 * 60 * 8, // 8-hour sessions
-  },
+const ALG_MAP: Record<string, string> = {
+  HS256: "sha256",
+  HS384: "sha384",
+  HS512: "sha512",
 };
 
-export async function getSession(): Promise<IronSession<AdminSession>> {
-  const cookieStore = await cookies();
-  return getIronSession<AdminSession>(cookieStore, SESSION_OPTIONS);
+interface JwtPayload {
+  sub: string;
+  role: string;
+  superAdmin?: boolean;
+  permissions?: string[];
+  type: string;
+  exp: number;
 }
 
-/** Call from Server Components/layouts — redirects to /admin/login if no session. */
+export function verifyToken(token: string): JwtPayload | null {
+  const secret = process.env.JWT_SECRET ?? "";
+  const parts = token.split(".");
+  if (parts.length !== 3) return null;
+  const [header, payload, signature] = parts;
+  try {
+    const hdr = JSON.parse(Buffer.from(header, "base64url").toString()) as { alg?: string };
+    const nodeAlg = ALG_MAP[hdr.alg ?? ""];
+    if (!nodeAlg) return null;
+    const expected = createHmac(nodeAlg, secret)
+      .update(`${header}.${payload}`)
+      .digest("base64url");
+    if (signature !== expected) return null;
+    const data = JSON.parse(Buffer.from(payload, "base64url").toString()) as JwtPayload;
+    if (data.exp && Math.floor(Date.now() / 1000) > data.exp) return null;
+    if (data.type !== "access") return null;
+    return data;
+  } catch {
+    return null;
+  }
+}
+
+function nameFromEmail(email: string): string {
+  const local = email.split("@")[0] ?? email;
+  return local.charAt(0).toUpperCase() + local.slice(1).replace(/[._]/g, " ");
+}
+
 export async function requireAuth(): Promise<AdminSession> {
-  const session = await getSession();
-  if (!session.userId) redirect("/admin/login");
+  const cookieStore = await cookies();
+  const token = cookieStore.get(TOKEN_COOKIE)?.value;
+  if (!token) redirect("/admin/login");
+  const data = verifyToken(token);
+  if (!data) redirect("/admin/login");
   return {
-    userId: session.userId,
-    email: session.email,
-    name: session.name,
-    role: session.role,
+    userId:      data.sub,
+    email:       data.sub,
+    name:        nameFromEmail(data.sub),
+    role:        data.role as AdminSession["role"],
+    superAdmin:  data.superAdmin ?? false,
+    permissions: data.permissions ?? [],
   };
+}
+
+/**
+ * Require both authentication AND a specific permission (or superAdmin).
+ * Redirects to /admin if authenticated but lacking the permission.
+ * Usage: await requirePermission("applications")
+ */
+export async function requirePermission(permission: string): Promise<AdminSession> {
+  const session = await requireAuth();
+  if (!session.superAdmin && !session.permissions.includes(permission)) {
+    redirect("/admin");
+  }
+  return session;
+}
+
+export async function getSession(): Promise<{ userId: string | null }> {
+  const cookieStore = await cookies();
+  const token = cookieStore.get(TOKEN_COOKIE)?.value;
+  if (!token) return { userId: null };
+  const data = verifyToken(token);
+  return { userId: data?.sub ?? null };
+}
+
+export async function getToken(): Promise<string | null> {
+  const cookieStore = await cookies();
+  return cookieStore.get(TOKEN_COOKIE)?.value ?? null;
 }

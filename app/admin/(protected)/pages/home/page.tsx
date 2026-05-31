@@ -9,11 +9,9 @@ export const metadata = { title: "Edit Home — IC IITP Admin" };
 
 const DEFAULT_STATS = [
   { value: "₹47.10 Cr", label: "Total Undertaking" },
-  { value: "100+",      label: "Startups Supported" },
   { value: "1,000+",    label: "B-Plans Screened" },
   { value: "25",        label: "Patents Facilitated" },
   { value: "600+",      label: "Funding Transactions" },
-  { value: "6",         label: "Incubation Schemes" },
 ];
 
 const DEFAULTS = {
@@ -47,12 +45,12 @@ export default async function HomeEditorPage() {
   return (
     <main className="p-8 max-w-2xl">
       <div className="flex items-center gap-3 mb-8">
-        <Link href="/admin/pages" className="text-sm" style={{ color: "#7a8e6a" }}>← Pages</Link>
-        <span style={{ color: "#d4e6c4" }}>/</span>
-        <LayoutDashboard className="w-5 h-5" style={{ color: "#3a5214" }} />
-        <h1 className="text-xl font-black" style={{ color: "#1c2e06" }}>Edit Home Page</h1>
+        <Link href="/admin/pages" className="text-sm" style={{ color: "var(--color-text-secondary)" }}>← Pages</Link>
+        <span style={{ color: "var(--color-input-border)" }}>/</span>
+        <LayoutDashboard className="w-5 h-5" style={{ color: "var(--color-brand-800)" }} />
+        <h1 className="text-xl font-black" style={{ color: "var(--color-brand-950)" }}>Edit Home Page</h1>
       </div>
-      <p className="text-sm mb-6" style={{ color: "#7a8e6a" }}>
+      <p className="text-sm mb-6" style={{ color: "var(--color-text-secondary)" }}>
         Changes appear live on <a href="/" target="_blank" className="underline">the homepage</a>.
         Leave an image field blank to use the default site image.
       </p>
