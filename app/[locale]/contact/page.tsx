@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { setRequestLocale } from "next-intl/server";
 import { Breadcrumb } from "@/components/breadcrumb";
+import { MobileInfo } from "@/components/mobile-info";
 import { MapPin, Phone, Mail, Clock, MessageSquare, PhoneCall } from "lucide-react";
 import { Reveal } from "@/components/reveal";
 import { getPageSection } from "@/lib/cms/page-sections";
@@ -42,7 +43,9 @@ export default async function ContactPage({ params }: Props) {
   const mapsUrl         = cms?.maps_embed_url   || D.maps_embed_url;
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: "var(--color-surface)" }}>
+    <>
+      <div className="md:hidden"><MobileInfo page="contact" /></div>
+      <div className="hidden md:block min-h-screen" style={{ backgroundColor: "var(--color-surface)" }}>
       {/* Hero */}
       <div className="relative overflow-hidden" style={{ background: "linear-gradient(160deg, var(--color-hero-from) 0%, var(--color-hero-via) 60%, var(--color-hero-to) 100%)" }}>
         <div className="absolute inset-0 pointer-events-none" aria-hidden="true"
@@ -183,5 +186,6 @@ export default async function ContactPage({ params }: Props) {
       </section>
       </div>
     </div>
+    </>
   );
 }

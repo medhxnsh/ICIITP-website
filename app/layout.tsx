@@ -5,7 +5,7 @@ const inter = Inter({ subsets: ["latin"], display: "swap", variable: "--font-int
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={inter.variable}>
+    <html lang="en" className={inter.variable} data-scroll-behavior="smooth">
       <body>{children}</body>
     </html>
   );

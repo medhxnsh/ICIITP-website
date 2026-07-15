@@ -3,6 +3,7 @@ import { setRequestLocale } from "next-intl/server";
 import { getAllLabs } from "@/lib/cms/labs";
 import { Link } from "@/i18n/navigation";
 import { Breadcrumb } from "@/components/breadcrumb";
+import { MobileInfo } from "@/components/mobile-info";
 import { ArrowRight, FlaskConical } from "lucide-react";
 import Image from "next/image";
 import { LAB_PHOTOS } from "@/components/lab-photo-gallery";
@@ -21,7 +22,9 @@ export default async function FacilitiesPage({ params }: Props) {
   const labs = await getAllLabs();
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: "var(--color-surface)" }}>
+    <>
+      <div className="md:hidden"><MobileInfo page="facilities" /></div>
+      <div className="hidden md:block min-h-screen" style={{ backgroundColor: "var(--color-surface)" }}>
       {/* Hero */}
       <div className="relative overflow-hidden" style={{ background: "linear-gradient(160deg, var(--color-hero-from) 0%, var(--color-hero-via) 60%, var(--color-hero-to) 100%)" }}>
         <div className="absolute inset-0 pointer-events-none" aria-hidden="true"
@@ -136,5 +139,6 @@ export default async function FacilitiesPage({ params }: Props) {
       </section>
       </div>
     </div>
+    </>
   );
 }

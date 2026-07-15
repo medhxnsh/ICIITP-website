@@ -35,6 +35,7 @@ export function ProgramLogo({ slug, logoUrl, size = 48 }: Props) {
         alt=""
         fill
         sizes={`${w}px`}
+        unoptimized={!!logoUrl}
         style={{
           objectFit: cfg?.fit ?? "contain",
           objectPosition: logoUrl ? "center" : (cfg?.pos ?? "left center"),

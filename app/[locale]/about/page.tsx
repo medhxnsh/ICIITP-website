@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { Breadcrumb } from "@/components/breadcrumb";
+import { MobileInfo } from "@/components/mobile-info";
 import { ArrowRight, Building2 } from "lucide-react";
 import Image from "next/image";
 import { Reveal } from "@/components/reveal";
@@ -51,7 +52,9 @@ export default async function AboutPage({ params }: Props) {
   const ceremonyBody      = cms?.ceremony_overlay_body   || "Empowering innovators across Bihar and beyond";
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: "var(--color-surface)" }}>
+    <>
+      <div className="md:hidden"><MobileInfo page="about" /></div>
+      <div className="hidden md:block min-h-screen" style={{ backgroundColor: "var(--color-surface)" }}>
       {/* Hero */}
       <div className="relative overflow-hidden" style={{ background: "linear-gradient(160deg, var(--color-hero-from) 0%, var(--color-hero-via) 60%, var(--color-hero-to) 100%)" }}>
         <div className="absolute inset-0 pointer-events-none" aria-hidden="true"
@@ -250,5 +253,6 @@ export default async function AboutPage({ params }: Props) {
       </section>
       </div>
     </div>
+    </>
   );
 }

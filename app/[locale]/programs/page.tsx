@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { setRequestLocale } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { Breadcrumb } from "@/components/breadcrumb";
+import { MobileInfo } from "@/components/mobile-info";
 import { PROGRAM_CATEGORIES, CATEGORY_BY_SECTION, getProgramBadge } from "@/lib/programs-config";
 import { getPublishedPrograms, type CmsProgramDoc } from "@/lib/cms/programs";
 import { ArrowRight, GraduationCap } from "lucide-react";
@@ -37,7 +38,9 @@ export default async function ProgramsPage({ params }: Props) {
   const totalSchemes = programs.length;
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: "var(--color-surface)" }}>
+    <>
+      <div className="md:hidden"><MobileInfo page="programs" /></div>
+      <div className="hidden md:block min-h-screen" style={{ backgroundColor: "var(--color-surface)" }}>
       {/* Hero */}
       <div className="relative overflow-hidden" style={{ background: "linear-gradient(160deg, var(--color-hero-from) 0%, var(--color-hero-via) 60%, var(--color-hero-to) 100%)" }}>
         <div className="absolute inset-0 pointer-events-none" aria-hidden="true"
@@ -203,5 +206,6 @@ export default async function ProgramsPage({ params }: Props) {
       </Stagger>
       </div>
     </div>
+    </>
   );
 }
